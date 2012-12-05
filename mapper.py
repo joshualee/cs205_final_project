@@ -6,60 +6,115 @@ ef -> flow amount
 ec -> capacity of edge
 
 
+# Assumes no self edge
+def edgeFormsCycle(new_edge, path):
+  new_destination = new_edge[0]
 
-def mapper(self, node, nodeInfo):
-    SaturatedPaths = []
-
-    AugmentedEdges = nodeInfo.pop()
-    for S_u, T_u, E_u in nodeInfo:
-        if (round-1) in AugumentedEdges:
-            e_v, e_id, e_f, e_c = E_u
-    if e_id in AugmentedEdges[round-1]:
-        a_v, a_id, a_f, a_c = AugumentedEdges[round-1][e_id]
-        e_f = e_f + a_f // how to replace
-        if (e_f  >= e_c)
+  for edge in path:
+    vertex = edge[0]
+    if vertex == new_destination:
+      return True
+  
+  return False
     
-        // line 4 for source 
-        del_indices = []
-        for i in xrange(0, S_u.range):
-            e_id = S_u[i] 
-if e_id in SaturatedPaths:
-    del_indices.append(i)
-
-    while len(del_indices > 0):
-        index = del_indices.pop()
-S_u.remove(index)
-
-// line 4 for sink 
-del_indices = []
-for i in xrange(0, T_u.range):
-    e_id = T_u[i] 
-if e_id in SaturatedPaths:
-    del_indices.append(i)
-
-    while len(del_indices > 0):
-        index = del_indices.pop()
-T_u.remove(index)
-
-// stores e_id, e_f
-Accumulator = []
 
 
-**HAVE S_U BE DICTIONARY WITH E_ID AS KEY" to easily match up with T_u
-for e_id in S_u:
-if e_id in T_u:
-accept, Accumulator = accept(Accumulator, e_id)
-if accept == true:
-emit(something on line 8)
+def updateEdge(edge, augmentedEdges, SaturatedEdges):
+  e_v, e_id, e_f, e_c = edge
+  if e_id in AugmentedEdges:
+    a_v, a_id, a_f, a_c = AugumentedEdges[e_id]
+    e_f = e_f + a_f
+    edge[2] = e_f
+    
+    if (e_f >= e_c and SaturatedEdges.count(e_id) == 0):
+      SaturatedEdges.append(e_id)
 
- 
 
+def mapper(self, u, nodeInfo):
+  SaturatedEdges = []
 
+  AugmentedEdges = nodeInfo.pop() # AugmentedEdges is a dictionary
+    
+  for i in len(nodeInfo):
+    S_u, T_u, E_u = nodeInfo[i]
+    
+    for edge in E_u:
+      updateEdge(edge, AugmentedEdges, SaturatedEdges)
+    for edge in S_u:
+      updateEdge(edge, AugmentedEdges, SaturatedEdges)
+    for edge in T_u:
+      updateEdge(edge, AugmentedEdges, SaturatedEdges)
+    
+  # line 4
+  for e_id in SaturatedEdges:    
+    for path in S_u:
+      if path.count(e_id) > 0:
+        S_u.remove(path)
+        
+    for path in T_u:
+      if path.count(e_id) > 0:
+        T_u.remove(path)
 
-def accept(Accumulator, a_id, a_f):
-if a_id in Accumulator:
-flow, cap = Accumulator[a_id]
-if flow + a_f < cap: 
-Accumulator[a_id] = flow + a_f, cap
-return true, Accumulator
-return false, AccumulatorSaturatedPaths[e_id] = true
+  # stores e_id, e_f
+  Accumulator = {}
+
+  for source_path in S_u:
+    for sink_path in T_u:
+      augmenting_path = source_path + sink_path
+      accept, Accumulator = accept(Accumulator, augmenting_path)
+      if accept:
+        yield ("t", [[augmenting_path], [], []])
+
+  if len(S_u) != 0:
+    for edge in E_u:
+      e_v, e_id, e_f, e_c = edge
+      if e_f < e_c:
+        for source_path in S_u:
+          if not edgeFormsCycle(edge, source_path):
+            yield(e_v, [[source_path[:].append(edge)], [], []])
+            break
+
+  if len(T_u) != 0:
+    for edge in E_u:
+      e_v, e_id, e_f, e_c = edge
+      if -e_f < e_c:
+        for sink_path in T_u:
+          if not edgeFormsCycle(edge, sink_path):
+            yield(e_v, [[], [sink_path[:].prepend(edge)], []])
+            break
+  
+  yield(u, [S_u, T_u, E_u])
+  
+def accept(Accumulator, augmenting_path):
+  valid_path = True
+  new_min_flow = 1000000
+  
+  # check each edge will not exceed capacity
+  # also calculate amount of flow we can push through path
+  for edge in augmenting_path:
+    e_v, e_id, e_f, e_c = edge
+    
+    if e_id in Accumulator:
+      accumulated_flow = Accumulator[e_id]
+    else:
+      accumulated_flow = 0
+    
+    test_flow = e_c - (accumulated_flow + e_f)
+    
+    if (e_c < 0):
+      valid_path = False
+    else:
+      if (test_flow < new_min_flow):
+        new_min_flow = test_flow
+  
+  # update Accumulator
+  if valid_path:
+    for edge in augmenting_path:
+      e_v, e_id, e_f, e_c = edge
+      if e_id in Accumulator:
+        Accumulator[e_id] += new_min_flow
+      else:
+        Accumulator[e_id] = new_min_flow
+    return true, Accumulator
+  else:
+    return false, Accumulator
