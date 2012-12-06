@@ -1,11 +1,14 @@
+import sys
+
 class Accumulator:
   def __init__(self):
       self.edges = {}
   
   def accept(self, augmenting_path):
+    sys.stderr.write(str(augmenting_path))
     valid_path = True
     min_flow = 1000000
-
+    
     # check each edge will not exceed capacity
     # also calculate amount of flow we can push through path
     for edge in augmenting_path:
