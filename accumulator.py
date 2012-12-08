@@ -21,7 +21,7 @@ class Accumulator:
 
       residue = e_c - (accumulated_flow + e_f)
 
-      if (residue < 0):
+      if (residue <= 0):
         valid_path = False
       else:
         if (residue < min_flow):
