@@ -1,0 +1,20 @@
+import sys
+import random 
+
+if __name__ == '__main__':
+  num_nodes = sys.argv[1]
+
+
+  nodes = ["s", "t"]
+
+  for i in len(num_nodes)-2:
+    nodes.append(str(i))
+
+  graph = {}
+
+  for u in nodes:
+    for v in nodes:
+      if u not == v:
+        prob_edge = random.random()
+        if prob_edge > 0.5:
+          graph[i] = [j, 
