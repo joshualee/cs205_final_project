@@ -195,7 +195,7 @@ def run(in_graph_file):
   counter = 0
   augmented_edges = {}
   
-  converge_count = 5
+  converge_count = 100
   previous_count = -1
   
   while converge_count != 0:
@@ -236,7 +236,7 @@ def run(in_graph_file):
      if move_counts["source"] == previous_count:
        converge_count -= 1
      else:
-       converge_count = 5
+       converge_count = 100
      previous_count = move_counts["source"]
 
    infile.close()    

@@ -14,6 +14,7 @@ def edge_forms_cycle(new_edge, path):
   for edge in path:
     u = edge[0]
     if u == v:
+      print "edge forms cycle " + str(u)  + ","  + str(v)
       return True
   return False
 
