@@ -11,15 +11,15 @@ class Max_Flow(object):
       return path
   
     for neighbor, edge_id, r_id, capacity in self.adj[source]:
-      print "Neigh " + str(neighbor) + "  Edge ID " + str(edge_id)
-      print "Path " + str(path)
+      # print "Neigh " + str(neighbor) + "  Edge ID " + str(edge_id)
+      # print "Path " + str(path)
       residual = capacity - self.flow[edge_id]
-      print "Residual on edge " + str(edge_id) + " = " + str(residual)
+      # print "Residual on edge " + str(edge_id) + " = " + str(residual)
  
       if residual > 0 and path.count([neighbor, edge_id, r_id, residual]) == 0:
 
         new_edge = [neighbor, edge_id, r_id, residual]
-        print "creating new edge " + str(new_edge)
+        # print "creating new edge " + str(new_edge)
         
         new_path = path[:]
         new_path.append(new_edge)
@@ -32,26 +32,23 @@ class Max_Flow(object):
   def max_flow(self, source, sink):
     path = self.find_path(source, sink, [])
 
-    
     while path != None:
-
+      print str(path)
       flow = min(residual for [e_v, e_id, r_id, residual] in path)
-      print "Min flow " + str(flow)
-      print "path in max_flow" + str(path)
+      # print "Min flow " + str(flow)
+      # print "path in max_flow" + str(path)
       for e_v, e_id, r_id, e_c in path:
-        print "Adding flow to edge " + str(e_id)
-        print "Subtracting flow from edge " + str(r_id) + "\n"
+        # print "Adding flow to edge " + str(e_id)
+        # print "Subtracting flow from edge " + str(r_id) + "\n"
         self.flow[e_id] += flow
         self.flow[r_id] -= flow 
 
-      print "State of flow"
-      for key in self.flow:
-        print str(key) + "\t" + str(self.flow[key])
+      
       path = self.find_path(source, sink, [])
 
     max_flow = 0 
     for e_v, e_id, r_id, e_c in self.adj[source]:
-      print "e_v : " + str(e_v) + "   flow : " + str(self.flow[e_id]) + "   eid : " + str(e_id)
+      #print "e_v : " + str(e_v) + "   flow : " + str(self.flow[e_id]) + "   eid : " + str(e_id)
       max_flow += self.flow[e_id]
 
     return max_flow
@@ -78,29 +75,19 @@ def create_graph(infile_name):
       e_id = 0
       r_id = 0
 
-      if e_v in adj:
-        for v, eid, rid, ec in adj[e_v]:
-          if v == vertex_id:
-            e_id = rid
-            r_id = eid
-      else:
-        e_id = e_id_counter
-        r_id = e_id_counter + 1
-        e_id_counter += 2
-        
-      new_edge = [e_v, str(e_id), str(r_id), e_c]
+      new_edge = [e_v, str(vertex_id) + "," + str(e_v), str(e_v) + "," + str(vertex_id), e_c]
 
       if vertex_id in adj:
         adj[vertex_id].append(new_edge)
       else:
         adj[vertex_id] = [new_edge]
 
-      flow[str(e_id)] = 0 
-      flow[str(r_id)] = 0 
-
-  print "Adjacency Matrix"
-  for key in adj:
-    print str(key) + "\t" + str(adj[key]) + "\n"
+      flow[str(vertex_id) + "," + str(e_v)] = 0 
+      flow[str(e_v) + "," + str(vertex_id)] = 0 
+  
+  # print "Adjacency Matrix"
+  # for key in adj:
+  #  print str(key) + "\t" + str(adj[key]) + "\n"
 
   return adj, flow
         
