@@ -34,8 +34,12 @@ class Max_Flow(object):
         self.flow[r_id] -= flow 
         path = self.find_path(source, sink, [])
 
-    return sum(self.flow[e_id] for e_v, e_id, r_id, e_c in self.adj[source])
 
+    max_flow = 0 
+    for e_v, e_id, r_id, e_c in self.adj[source]:
+      max_flow += self.flow[e_id]
+
+    return max_flow
 
 def extract_key_value(line):
   split_line = line.split("\t")
@@ -82,7 +86,9 @@ def create_graph(infile_name):
   return adj, flow
         
 if __name__ == '__main__':
-  infile = "../graphs/test_graph_simple.txt"
+    
+  file_name = sys.argv[1]
+  infile = "../graphs/generated_graphs/" + file_name
 
   adj, flow = create_graph(infile)
   max_flow = Max_Flow(adj, flow)
