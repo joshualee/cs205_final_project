@@ -16,10 +16,9 @@ if __name__ == '__main__':
     graph[u] = []
     print "inserting " + str(u)
     for v in nodes:
-
       if u != v:
         prob_edge = random.random()
-        if prob_edge > 0.5:
+        if prob_edge > 0:
           random_weight = random.randint(1, 10)
           graph[u].append([v, random_weight])
   
@@ -28,8 +27,6 @@ if __name__ == '__main__':
   print str(graph)
   outfile = open(outfile_name, "w")      
   for key in graph:
-
     outfile.write(json.dumps(key) + "\t" + json.dumps(graph[key]) + "\n")
-
 
   outfile.close()
