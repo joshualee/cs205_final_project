@@ -107,7 +107,7 @@ def find_min_cut(graph, augmented_edges, cut):
       e_id = str(u) + "," + str(e_v)
       if e_id in augmented_edges:
         new_c = e_c - augmented_edges[e_id]
-        if new_c == 0 and u in cut:
+        if new_c == 0 and u in cut and e_v not in cut:
           min_cut += e_c
   return min_cut
   
@@ -119,6 +119,7 @@ def find_min_cut_serial(graph_dict):
       graph.add_edge((u, e_v), wt = e_c)
   
   flow, cut = maximum_flow(graph, "s", "t")
+  print "serial cut", cut
   min_cut = cut_value(graph, flow, cut)
   return int(min_cut)
 
@@ -134,8 +135,13 @@ def run(in_graph_file):
   
   counter = 0
   augmented_edges = {}
+  
+  converge_count = 5
+  previous_count = -1
+  
   converged = False
-  while(not converged):
+  while converge_count != 0:
+  # while(not converged):
    infile = open(mr_file_name, "r")
 
    mr_job = max_flow.MRFlow()
@@ -169,10 +175,13 @@ def run(in_graph_file):
      # check for convergence
      move_counts = runner.counters()[0]["move"]
      print "counts", move_counts
-     print "source moves: " + str(move_counts["source"])
-     print "sink moves: " + str(move_counts["sink"])
-     if move_counts["source"] == 0: # or move_counts["sink"] == 0:
-       converged = True
+     # if move_counts["source"] == 0: # or move_counts["sink"] == 0:
+     #   converged = True
+     if move_counts["source"] == previous_count:
+       converge_count -= 1
+     else:
+       converge_count = 5
+     previous_count = move_counts["source"]
 
    infile.close()    
    outfile.close()
@@ -189,6 +198,7 @@ def run(in_graph_file):
   print "min cut", min_cut
   print "min cut serial", min_cut_serial
   print "nodes in S", preordering
+  print "augmented_edges", augmented_edges
   
   return min_cut, preordering
 

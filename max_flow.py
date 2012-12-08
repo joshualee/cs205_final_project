@@ -105,27 +105,21 @@ class MRFlow(MRJob):
               sys.stderr.write("\nedge: " + str(edge))
     
     # extends sink excess paths
-    if len(T_u) != 0:
-      for edge in E_u:
-        e_v, e_f, e_c = edge[0], edge[2], edge[3]
-        if -e_f < e_c:
-          for sink_path in T_u:
-            if not edge_forms_cycle(edge, sink_path):
-              new_path = sink_path[:]
-              new_path.insert(0, edge)
-              sys.stderr.write("extended sink path: " + str(new_path))
-              yield(e_v, [[], [new_path], []])
-              break
+    # if len(T_u) != 0:
+    #   for edge in E_u:
+    #     e_v, e_f, e_c = edge[0], edge[2], edge[3]
+    #     if -e_f < e_c:
+    #       for sink_path in T_u:
+    #         if not edge_forms_cycle(edge, sink_path):
+    #           new_path = sink_path[:]
+    #           new_path.insert(0, edge)
+    #           sys.stderr.write("extended sink path: " + str(new_path))
+    #           yield(e_v, [[], [new_path], []])
+    #           break
     
     yield(u, [S_u, T_u, E_u])
     
   def reducer(self, u, values):
-    # for item in values:
-    #   a, b, c = item
-    #   sys.stderr.write("\n")
-    #   sys.stderr.write("ITEM: " + str(a))
-    #   sys.stderr.write("\n")
-    #   yield (u, item)
       
     # initialize new Accumulators
     A_p, A_s, A_t = acc.Accumulator(), acc.Accumulator(), acc.Accumulator()
@@ -156,16 +150,16 @@ class MRFlow(MRJob):
     self.increment_counter("move", "source", 0)
     self.increment_counter("move", "sink", 0)
     
-    if (len(S_m) == 0 and len(S_u) > 0):
-      self.increment_counter("move", "source", 1) 
+    # if (len(S_m) == 0 and len(S_u) > 0):
+    #   self.increment_counter("move", "source", 1)
+      
+    self.increment_counter("move", "source", len(S_u))
     
     if (len(T_m) == 0 and len(T_u) > 0):
       self.increment_counter("move", "sink", 1) 
     
     if (u == "t"):
       yield "A_p", A_p.edges
-      # outf = open("edges.txt", "w")
-      # outf.write(json.dumps(A_p.edges))
 
     sys.stderr.write("(R) " + str(u) + ": S_u: " + str(S_u) + "\t" + "T_u: " + str(T_u) + "\t" + "E_u: " + str(E_u) + "\n")
 
