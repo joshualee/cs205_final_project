@@ -81,6 +81,7 @@ def mr_graph_convert(d):
   
   return new_graph
 
+
 def augment_graph(graph, augmented_edges):
   augmented_graph = digraph()
   augmented_graph.add_nodes(graph.keys())
@@ -89,10 +90,18 @@ def augment_graph(graph, augmented_edges):
     for edge in edges:
       e_v, e_c = edge
       e_id = str(u) + "," + str(e_v)
+      r_id = str(e_v) + "," + str(u)
       if e_id in augmented_edges:
-        new_capacity = e_c - augmented_edges[e_id]
-        if new_capacity > 0:
+        flow = augmented_edges[e_id]
+        if flow > 0:
+          augmented_graph.add_edge((e_v, u))
+        else:
+          print "Fatal error: non positive flow on edge"
+          sys.exit(-1)
+        residue = e_c - flow
+        if residue > 0:
           augmented_graph.add_edge((u, e_v))
+          
         elif new_capacity < 0:
           print "Fatal error: negative capacity in augmented graph"
           sys.exit(-1)
@@ -178,7 +187,7 @@ def run(in_graph_file):
      # if move_counts["source"] == 0: # or move_counts["sink"] == 0:
      #   converged = True
      if move_counts["source"] == previous_count:
-       converge_count -= 1
+      converge_count -= 1
      else:
        converge_count = 5
      previous_count = move_counts["source"]
@@ -200,6 +209,15 @@ def run(in_graph_file):
   print "nodes in S", preordering
   print "augmented_edges", augmented_edges
   
+  alternative_flow = 0
+  for key in augmented_edges:
+    #print str(key)
+    src, sink = key.split(",")
+    if sink == "t": 
+      alternative_flow += augmented_edges[key]
+
+  print "Alternative Flow Calculation : " + str(alternative_flow)
+
   return min_cut, preordering
 
 if __name__ == '__main__':
