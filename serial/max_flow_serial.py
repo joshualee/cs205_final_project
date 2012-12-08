@@ -33,7 +33,7 @@ class Max_Flow(object):
     path = self.find_path(source, sink, [])
 
     while path != None:
-      print str(path)
+      # print str(path)
       flow = min(residual for [e_v, e_id, r_id, residual] in path)
       # print "Min flow " + str(flow)
       # print "path in max_flow" + str(path)
