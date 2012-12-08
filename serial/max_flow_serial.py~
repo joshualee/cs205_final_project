@@ -11,22 +11,20 @@ class Max_Flow(object):
       return path
   
     for neighbor, edge_id, r_id, capacity in self.adj[source]:
-      print "Path " + str(path)
+      # print "Path " + str(path)
       residual = capacity - self.flow[edge_id]
  
       if residual > 0 and path.count([neighbor, edge_id, r_id, residual]) == 0:
 
         new_edge = [neighbor, edge_id, r_id, residual]
-        print "creating new edge " + str(new_edge)
+        # print "creating new edge " + str(new_edge)
         path.append(new_edge)
         result = self.find_path(neighbor, sink, path)
 
         if result != None:
           return result
     
-
   def max_flow(self, source, sink):
-    print "CALLING FIND PATH"
     path = self.find_path(source, sink, [])
  
     while path != None:
@@ -34,12 +32,7 @@ class Max_Flow(object):
       for _, e_id, r_id, _ in path:
         self.flow[e_id] += flow
         self.flow[r_id] -= flow 
-        print "CALLING FIND PATH"
         path = self.find_path(source, sink, [])
-    
-    #sum = 0
-
-    
 
     return sum(self.flow[e_id] for e_v, e_id, r_id, e_c in self.adj[source])
 
@@ -60,7 +53,6 @@ def create_graph(infile_name):
   e_id_counter = 0
   
   for line in infile:
-    print "Line: " + str(line)
     vertex_id, edges = extract_key_value(line)
         
     for e_v, e_c in edges:
@@ -87,19 +79,13 @@ def create_graph(infile_name):
       flow[str(e_id)] = 0 
       flow[str(r_id)] = 0 
 
-  """
-  print "ADJ"
-  print str(adj)
-  print "FLOW"
-  print str(flow)
-  """
-
   return adj, flow
         
 if __name__ == '__main__':
-  infile = "../graphs/test_graph.txt"
+  infile = "../graphs/test_graph_simple.txt"
 
   adj, flow = create_graph(infile)
   max_flow = Max_Flow(adj, flow)
 
-  max_flow.max_flow("s", "t")
+  x = max_flow.max_flow("s", "t")
+  print "X " + str(x)
