@@ -40,9 +40,3 @@ if __name__ == '__main__':
   
   print segmented_image
   img.imsave(output_image, segmented_image, cmap="gray")
-
-  # print "st", spanning_tree
-  # print "st type", type(spanning_tree)
-  # 
-  # print preordering
-  # print len(preordering), len(augmented_graph_dict.keys())

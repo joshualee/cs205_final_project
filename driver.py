@@ -1,12 +1,16 @@
+# Library imports
+from pygraph.classes.digraph import digraph
+from pygraph.algorithms.searching import depth_first_search
+from pygraph.algorithms.minmax import maximum_flow, cut_value
 from mrjob.job import MRJob
 import json
 import sys
 import subprocess
-import max_flow
 import numpy as np
 import matplotlib.image as img
-from pygraph.classes.digraph import digraph
-from pygraph.algorithms.searching import depth_first_search
+
+# Our Project
+import max_flow
 
 def merge_edge_flow(master, new):
   for edge, flow in new.iteritems():
@@ -27,8 +31,7 @@ def validate_edge(edge):
   e_v, e_id, e_f, e_c = edge
   if e_c < 0:
     print "cannot have negative edge capacity"
-    # sys.exit(-1)
-
+    sys.exit(-1)
 
 def graph_file_to_dict(graph_file):
   graph = open(graph_file, "r")
@@ -42,6 +45,7 @@ def dict_to_graph_file(d, outfile_path):
   outfile = open(outfile_path, "w")
   for vertex_id, vertex_info in d.iteritems():
     vertex_info.append({})
+    # vertex_info.append(0)
     new_line = json.dumps(vertex_id) + "\t" + json.dumps(vertex_info) + "\n"
     outfile.write(new_line)
   outfile.close()
@@ -106,6 +110,17 @@ def find_min_cut(graph, augmented_edges, cut):
         if new_c == 0 and u in cut:
           min_cut += e_c
   return min_cut
+  
+def find_min_cut_serial(graph_dict):
+  graph = digraph()
+  graph.add_nodes(graph_dict.keys())
+  for u, edges in graph_dict.iteritems():
+    for e_v, e_c in edges:
+      graph.add_edge((u, e_v), wt = e_c)
+  
+  flow, cut = maximum_flow(graph, "s", "t")
+  min_cut = cut_value(graph, flow, cut)
+  return int(min_cut)
 
 def run(in_graph_file):
   mr_file_name = "tmp/mr_max_flow.txt"
@@ -113,6 +128,9 @@ def run(in_graph_file):
   original_graph_dict = graph_file_to_dict(in_graph_file)
   mr_graph = mr_graph_convert(original_graph_dict)
   dict_to_graph_file(mr_graph, mr_file_name)
+  
+  edge_file = open("edges.txt", "w")
+  edge_file.write("")
   
   counter = 0
   augmented_edges = {}
@@ -144,11 +162,13 @@ def run(in_graph_file):
      for line in out_buffer:
        key, value = extract_key_value(line)
        value.append(A_p)
+       # value.append(1)
        new_line = json.dumps(key) + "\t" + json.dumps(value) + "\n"
        outfile.write(new_line)
 
      # check for convergence
      move_counts = runner.counters()[0]["move"]
+     print "counts", move_counts
      print "source moves: " + str(move_counts["source"])
      print "sink moves: " + str(move_counts["sink"])
      if move_counts["source"] == 0: # or move_counts["sink"] == 0:
@@ -157,19 +177,17 @@ def run(in_graph_file):
    infile.close()    
    outfile.close()
    counter += 1
-
-  print "augmented edges: " + str(augmented_edges)
-  print "counter=" + str(counter)
   
   # augment graph based on max flow
   augmented_graph = augment_graph(original_graph_dict, augmented_edges)
   
   # find cut
   spanning_tree, preordering, postordering = depth_first_search(augmented_graph, "s")
-  
   min_cut = find_min_cut(original_graph_dict, augmented_edges, preordering)
+  min_cut_serial = find_min_cut_serial(original_graph_dict)
   
   print "min cut", min_cut
+  print "min cut serial", min_cut_serial
   print "nodes in S", preordering
   
   return min_cut, preordering

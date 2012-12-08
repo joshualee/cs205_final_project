@@ -39,6 +39,12 @@ class MRFlow(MRJob):
     saturated_edges = []
                 
     augmented_edges = node_info.pop()
+    # first = node_info.pop()
+    # if first == 1:
+    #   inf = open("edges.txt", "r")
+    #   augmented_edges = json.loads(inf.readline())
+    # else:
+    #   augmented_edges = {}
     
     sys.stderr.write(str(type(augmented_edges)))
     
@@ -146,7 +152,8 @@ class MRFlow(MRJob):
             T_u.append(te)
     
     # initalize counter
-    self.increment_counter("move", "source", 0) 
+    self.increment_counter("move", "source", 0)
+    self.increment_counter("move", "source", 0)
     self.increment_counter("move", "sink", 0)
     
     if (len(S_m) == 0 and len(S_u) > 0):
@@ -157,6 +164,8 @@ class MRFlow(MRJob):
     
     if (u == "t"):
       yield "A_p", A_p.edges
+      # outf = open("edges.txt", "w")
+      # outf.write(json.dumps(A_p.edges))
 
     sys.stderr.write("(R) " + str(u) + ": S_u: " + str(S_u) + "\t" + "T_u: " + str(T_u) + "\t" + "E_u: " + str(E_u) + "\n")
 
