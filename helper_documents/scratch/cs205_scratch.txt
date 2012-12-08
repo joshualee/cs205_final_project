@@ -23,3 +23,45 @@ for k, v in A_p.iteritems():
     master_A_p[k] += v
   else:
     master_A_p[k] = v
+
+
+		def convert_graph(original_file, new_file):
+		  original_input = open(original_file, "r")
+		  out_file = open(new_file, "w")
+
+		  e_id = 0
+		  s_neighbors = {}
+		  new_graph = {}
+
+		  for line in original_input:
+		    vertex_id, edges = extract_key_value(line)
+
+		    E_u = []
+		    S_u = []
+		    T_u = []
+
+		    for e_v, e_c in edges:
+		      new_edge = [e_v, str(e_id), 0, e_c]
+		      validate_edge(new_edge)
+		      E_u.append(new_edge)
+		      e_id += 1
+
+		      # assumes verticies in neighbor list are unique
+		      if vertex_id == "s":
+		        s_neighbors[e_v] = new_edge
+		      if e_v == "t":
+		        T_u.append([new_edge])
+
+		    new_graph[vertex_id] = [S_u, T_u, E_u]
+
+		  for vertex_id, edge in s_neighbors.iteritems():
+		    new_graph[vertex_id][0] = [[edge]]
+
+		  if "s" not in new_graph or "t" not in new_graph:
+		    print "need to provide source and sink verticies"
+		    sys.exit(-1)
+
+		  for vertex_id, vertex_info in new_graph.iteritems():
+		    vertex_info.append({})
+		    new_line = json.dumps(vertex_id) + "\t" + json.dumps(vertex_info) + "\n"
+		    out_file.write(new_line)

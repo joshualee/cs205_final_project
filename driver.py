@@ -29,82 +29,90 @@ def validate_edge(edge):
     print "cannot have negative edge capacity"
     # sys.exit(-1)
 
-def convert_graph(original_file, new_file):
-  original_input = open(original_file, "r")
-  out_file = open(new_file, "w")
 
-  e_id = 0
+def graph_file_to_dict(graph_file):
+  graph = open(graph_file, "r")
+  d = {}
+  for line in graph:
+    u, edges = extract_key_value(line)
+    d[u] = edges
+  return d
+
+def dict_to_graph_file(d, outfile_path):
+  outfile = open(outfile_path, "w")
+  for vertex_id, vertex_info in d.iteritems():
+    vertex_info.append({})
+    new_line = json.dumps(vertex_id) + "\t" + json.dumps(vertex_info) + "\n"
+    outfile.write(new_line)
+  outfile.close()
+
+def mr_graph_convert(d):
   s_neighbors = {}
   new_graph = {}
   
-  for line in original_input:
-    vertex_id, edges = extract_key_value(line)
-    
+  for vertex_id, edges in d.iteritems():
     E_u = []
     S_u = []
     T_u = []
-    
+
     for e_v, e_c in edges:
-      new_edge = [e_v, str(e_id), 0, e_c]
+      new_edge = [e_v, str(vertex_id) + "," + str(e_v), 0, e_c]
       validate_edge(new_edge)
       E_u.append(new_edge)
-      e_id += 1
-      
+
       # assumes verticies in neighbor list are unique
       if vertex_id == "s":
         s_neighbors[e_v] = new_edge
       if e_v == "t":
         T_u.append([new_edge])
-      
+
     new_graph[vertex_id] = [S_u, T_u, E_u]
-  
+
   for vertex_id, edge in s_neighbors.iteritems():
     new_graph[vertex_id][0] = [[edge]]
-    
+
   if "s" not in new_graph or "t" not in new_graph:
     print "need to provide source and sink verticies"
-    # sys.exit(-1)
+    sys.exit(-1)
   
-  for vertex_id, vertex_info in new_graph.iteritems():
-    vertex_info.append({})
-    new_line = json.dumps(vertex_id) + "\t" + json.dumps(vertex_info) + "\n"
-    out_file.write(new_line)
+  return new_graph
 
-def augment_graph(original_graph_path, augmented_edges):
-  min_cut = 0
-  
-  e_id = 0
-  augmented_graph_dict = {}
-  for line in open(original_graph_path, "r"):
-   u, edges = extract_key_value(line)
-   for edge in edges:
-     if str(e_id) in augmented_edges:
-       original_capacity = edge[1]
-       new_capacity = original_capacity - augmented_edges[str(e_id)]
-       edge[1] = new_capacity
-       if new_capacity == 0:
-         min_cut += original_capacity
-       elif new_capacity < 0:
-         print "Fatal error: negative capacity in augmented graph"
-         sys.exit(-1)
-     e_id += 1
-   augmented_graph_dict[u] = edges
-
-  # create augmented graph
+def augment_graph(graph, augmented_edges):
   augmented_graph = digraph()
-  augmented_graph.add_nodes(augmented_graph_dict.keys())
-  for u, edges in augmented_graph_dict.iteritems():
-   for edge in edges:
-     e_v, e_c = edge
-     # remove saturated edges
-     if e_c > 0:
-       augmented_graph.add_edge((u, e_v))
+  augmented_graph.add_nodes(graph.keys())
+  
+  for u, edges in graph.iteritems():
+    for edge in edges:
+      e_v, e_c = edge
+      e_id = str(u) + "," + str(e_v)
+      if e_id in augmented_edges:
+        new_capacity = e_c - augmented_edges[e_id]
+        if new_capacity > 0:
+          augmented_graph.add_edge((u, e_v))
+        elif new_capacity < 0:
+          print "Fatal error: negative capacity in augmented graph"
+          sys.exit(-1)
 
-  return min_cut, augmented_graph
+  return augmented_graph
+
+def find_min_cut(graph, augmented_edges, cut):
+  min_cut = 0
+  for u, edges in graph.iteritems():
+    for edge in edges:
+      e_v, e_c = edge
+      e_id = str(u) + "," + str(e_v)
+      if e_id in augmented_edges:
+        new_c = e_c - augmented_edges[e_id]
+        if new_c == 0 and u in cut:
+          min_cut += e_c
+  return min_cut
 
 def run(in_graph_file):
   mr_file_name = "tmp/mr_max_flow.txt"
-  convert_graph(in_graph_file, mr_file_name)
+
+  original_graph_dict = graph_file_to_dict(in_graph_file)
+  mr_graph = mr_graph_convert(original_graph_dict)
+  dict_to_graph_file(mr_graph, mr_file_name)
   
   counter = 0
   augmented_edges = {}
@@ -154,9 +162,12 @@ def run(in_graph_file):
   print "counter=" + str(counter)
   
   # augment graph based on max flow
-  min_cut, augmented_graph = augment_graph(in_graph_file, augmented_edges)
+  augmented_graph = augment_graph(original_graph_dict, augmented_edges)
+  
   # find cut
   spanning_tree, preordering, postordering = depth_first_search(augmented_graph, "s")
+  
+  min_cut = find_min_cut(original_graph_dict, augmented_edges, preordering)
   
   print "min cut", min_cut
   print "nodes in S", preordering
