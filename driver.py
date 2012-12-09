@@ -283,7 +283,7 @@ def run(in_graph_file):
   min_cut_serial, serial_cut = find_min_cut_serial(original_graph)
 
   print "Min Cut: \n\t parallel: {0} \n\t serial: {1}".format(min_cut, min_cut_serial)
-  retsurn min_cut, preordering
+  return min_cut, preordering
 
 if __name__ == '__main__':
   if len(sys.argv) != 2:
