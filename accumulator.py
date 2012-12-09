@@ -1,3 +1,16 @@
+"""
+CS205 Final Project -- Joshua Lee and Mona Huang
+TF: Verena Kaynig-Fittkau
+Project: Parallel Max-Flow Min-Cut 
+
+accumulator.py defines the Accumulator class that is used when 
+accepting augmented paths in the MapReduce jobs. An Accumulator
+will accept a path as long as accepting the edges in the path does
+not violate the capacity constraints of the existing edges in the 
+Accumulator 
+"""
+
+#Library imports
 import sys
 
 class Accumulator:
@@ -38,11 +51,6 @@ class Accumulator:
           self.edges[e_id] += min_flow
         else:
           self.edges[e_id] = min_flow
-        
-        # if e_r in self.edges:
-        #   self.edges[e_r] -= min_flow
-        # else:
-        #   self.edges[e_r] = -min_flow
       return True
     else:
       return False

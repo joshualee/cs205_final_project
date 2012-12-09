@@ -3,11 +3,11 @@ CS205 Final Project -- Joshua Lee and Mona Huang
 TF: Verena Kaynig-Fittkau
 Project: Parallel Max-Flow Min-Cut 
 
-usuage: python max_flow_serial.py <infile>
+usuage: python serial.py <infile>
 input: infile that holds graph
 output: integer representing max-flow of input graph 
 
-max_flow_serial.py calculates in serial the maximum flow of a graph from a 
+serial.py calculates in serial the maximum flow of a graph from a 
 specified infile. See README for acceptable graph format. 
 """
 
