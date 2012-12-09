@@ -65,14 +65,14 @@ class Max_Flow(object):
         new_weight = curr_cap - flow
         if new_weight > 0:
           self.graph.set_edge_weight((u, v), new_weight)
-          if (self.graph.has_edge((v, u))):
-            curr_weight = self.graph.edge_weight((v, u))
-            self.graph.set_edge_weight((v, u), curr_weight + flow)
-          else:
-            self.graph.add_edge((v, u), wt=flow)
         elif new_weight == 0:
           if self.graph.has_edge((u,v)):
             self.graph.del_edge((u,v))
+        if (self.graph.has_edge((v, u))):
+          curr_weight = self.graph.edge_weight((v, u))
+          self.graph.set_edge_weight((v, u), curr_weight + flow)
+        else:
+          self.graph.add_edge((v, u), wt=flow)
       path = self.find_path()
     
     # calculates the final max_flow by comparing the residual 
