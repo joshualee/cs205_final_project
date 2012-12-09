@@ -33,13 +33,31 @@ def validate_edge(edge):
     print "cannot have negative edge capacity"
     sys.exit(-1)
 
+def file_to_graph(graph_file_path):
+  graph_file = open(graph_file_path, "r")
+  g = digraph()
+  for line in graph_file:
+    u, edges = extract_key_value(line)
+    if not g.has_node(u):
+      g.add_node(u)
+    for edge in edges:
+      v, e_c = edge
+      if not g.has_node(v):
+        g.add_node(v)
+      g.add_edge((u, v), wt=e_c)
+  return g
+
 def graph_file_to_dict(graph_file):
   graph = open(graph_file, "r")
   d = {}
   for line in graph:
     u, edges = extract_key_value(line)
-    d[u] = edges
+    d[str(u)] = edges
   return d
+
+# def graph_to_file(g, outfile_path):
+#   outfile = open(outfile_path, "w")
+#   for u in g.nodes():
 
 def dict_to_graph_file(d, outfile_path):
   outfile = open(outfile_path, "w")
@@ -50,36 +68,83 @@ def dict_to_graph_file(d, outfile_path):
     outfile.write(new_line)
   outfile.close()
 
-def mr_graph_convert(d):
+def insert_back_edges(g):
+  for u in g.nodes():
+    for v in g.neighbors(u):
+      if not g.has_edge((v, u)):
+        g.add_edge((v, u), wt=0)
+
+def mr_graph_convert(g):
   s_neighbors = {}
   new_graph = {}
+  back_edges = {}
   
-  for vertex_id, edges in d.iteritems():
+  # insert_back_edges(g)
+
+  for u in g.nodes():
     E_u = []
     S_u = []
     T_u = []
-
-    for e_v, e_c in edges:
-      new_edge = [e_v, str(vertex_id) + "," + str(e_v), 0, e_c]
-      validate_edge(new_edge)
+    
+    for v in g.neighbors(u):
+      e_c = g.edge_weight((u, v))
+      new_edge = [v, "{0},{1}".format(u,v), 0, e_c]
       E_u.append(new_edge)
-
+      
       # assumes verticies in neighbor list are unique
-      if vertex_id == "s":
-        s_neighbors[e_v] = new_edge
-      if e_v == "t":
+      if u == "s":
+        s_neighbors[v] = new_edge
+      if v == "t":
         T_u.append([new_edge])
 
-    new_graph[vertex_id] = [S_u, T_u, E_u]
+    new_graph[u] = [S_u, T_u, E_u]
 
-  for vertex_id, edge in s_neighbors.iteritems():
-    new_graph[vertex_id][0] = [[edge]]
+  for u, edge in s_neighbors.iteritems():
+    new_graph[u][0] = [[edge]]
 
   if "s" not in new_graph or "t" not in new_graph:
     print "need to provide source and sink verticies"
     sys.exit(-1)
-  
+
   return new_graph
+
+# def mr_graph_convert(d):
+#   s_neighbors = {}
+#   new_graph = {}
+#   back_edges = {}
+#   
+#   for vertex_id, edges in d.iteritems():
+#     E_u = []
+#     S_u = []
+#     T_u = []
+# 
+#     for e_v, e_c in edges:
+#       new_edge = [e_v, str(vertex_id) + "," + str(e_v), 0, e_c]
+#       validate_edge(new_edge)
+#       E_u.append(new_edge)
+#       
+#       back_edge = [vertex_id, "{0},{1}".format(e_v, vertex_id), 0, 0]
+#       if e_v in back_edges:
+#         back_edges[e_v].append(back_edge)
+#       else:
+#         back_edges[e_v] = [back_edge]
+# 
+#       # assumes verticies in neighbor list are unique
+#       if vertex_id == "s":
+#         s_neighbors[e_v] = new_edge
+#       if e_v == "t":
+#         T_u.append([new_edge])
+# 
+#     new_graph[vertex_id] = [S_u, T_u, E_u]
+# 
+#   for vertex_id, edge in s_neighbors.iteritems():
+#     new_graph[vertex_id][0] = [[edge]]
+# 
+#   if "s" not in new_graph or "t" not in new_graph:
+#     print "need to provide source and sink verticies"
+#     sys.exit(-1)
+#   
+#   return new_graph
   
 def dict_graph_to_python_graph(d):
   g = digraph()
@@ -121,7 +186,7 @@ def augment_graph(graph, augmented_edges):
         else:
           g.add_edge(b_e, wt=flow)
   
-  # remove edges with zero capacity
+  # remove edges with zero or less capacity
   for edge in g.edges():
     if g.edge_weight(edge) == 0:
       g.del_edge(edge)
@@ -185,8 +250,8 @@ def diff(l1, l2):
 def run(in_graph_file):
   mr_file_name = "tmp/mr_max_flow.txt"
 
-  original_graph_dict = graph_file_to_dict(in_graph_file)
-  mr_graph = mr_graph_convert(original_graph_dict)
+  original_graph = file_to_graph(in_graph_file)
+  mr_graph = mr_graph_convert(original_graph)
   dict_to_graph_file(mr_graph, mr_file_name)
   
   edge_file = open("edges.txt", "w")
@@ -201,6 +266,7 @@ def run(in_graph_file):
   while converge_count != 0:
    infile = open(mr_file_name, "r")
 
+   # mr_job = max_flow.MRFlow(args=['-r', 'emr'])
    mr_job = max_flow.MRFlow()
    mr_job.stdin = infile
 
@@ -245,7 +311,7 @@ def run(in_graph_file):
   
   print "augmented_edges", augmented_edges
   # augment graph based on max flow
-  original_graph = dict_graph_to_python_graph(original_graph_dict)
+  # original_graph = dict_graph_to_python_graph(original_graph_dict)
   augmented_graph = augment_graph(original_graph, augmented_edges)
   
   # find cut

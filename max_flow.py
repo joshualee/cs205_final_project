@@ -62,6 +62,18 @@ class MRFlow(MRJob):
     for path in T_u:
       for edge in path:
         update_edge(edge, augmented_edges, saturated_edges)
+
+    # for e_v, e_id, e_f, e_c in E_u:
+    #   if (e_f >= e_c and e_id not in saturated_edges):
+    #     saturated_edges.append(e_f)
+    # for path in S_u:
+    #   for e_v, e_id, e_f, e_c in path:
+    #     if (e_f >= e_c and e_id not in saturated_edges):
+    #       saturated_edges.append(e_f)
+    # for path in T_u:
+    #   for e_v, e_id, e_f, e_c in path:
+    #     if (e_f >= e_c and e_id not in saturated_edges):
+    #       saturated_edges.append(e_f)
     
     # remove saturated excess paths
     for e_id in saturated_edges:    
@@ -85,6 +97,12 @@ class MRFlow(MRJob):
         else:
           sys.stderr.write("rejected aug. path: " + str(augmenting_path) + "\n")          
     
+    # reseed S's neighbors
+    if u == "s":
+      for e_v, e_id, e_f, e_c in E_u:
+        new_path = [[e_v, e_id, e_f, e_c]]
+        yield (e_v, [[new_path],[],[]])
+    
     # extends source excess paths
     if len(S_u) != 0:
       sys.stderr.write("len S_u = " + str(len(S_u)) + "\n")
@@ -99,7 +117,7 @@ class MRFlow(MRJob):
               sys.stderr.write("D source_path = " + str(new_path) + "\n")
               sys.stderr.write("extended source path: " + str(new_path) + "\n")
               yield(e_v, [[new_path], [], []])
-              break
+              # break
             else:
               sys.stderr.write("CYCLE\n")
               sys.stderr.write("path: " + str(source_path))
