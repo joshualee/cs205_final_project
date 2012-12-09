@@ -31,10 +31,18 @@ class Accumulator:
     if valid_path:
       for edge in augmenting_path:
         e_v, e_id, e_f, e_c = edge
+        r = e_id.split(",")
+        e_r = "{0},{1}".format(r[1], r[0])
+        
         if e_id in self.edges:
           self.edges[e_id] += min_flow
         else:
           self.edges[e_id] = min_flow
+        
+        # if e_r in self.edges:
+        #   self.edges[e_r] -= min_flow
+        # else:
+        #   self.edges[e_r] = -min_flow
       return True
     else:
       return False
