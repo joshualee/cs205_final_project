@@ -1,3 +1,6 @@
+import sys
+import json
+
 class Edge(object):
     def __init__(self, u, v, w):
         self.source = u
@@ -32,7 +35,10 @@ class FlowNetwork(object):
     def find_path(self, source, sink, path):
         if source == sink:
             return path
+        find_path_iter = 0 
         for edge in self.get_edges(source):
+            find_path_iter += 1
+            print "FIND PATH ITER " + str(find_path_iter)
             residual = edge.capacity - self.flow[edge]
             if residual > 0 and not (edge,residual) in path:
                 result = self.find_path( edge.sink, sink, path + [(edge,residual)] )
@@ -49,14 +55,29 @@ class FlowNetwork(object):
             path = self.find_path(source, sink, [])
         return sum(self.flow[edge] for edge in self.get_edges(source))
  
+ 
+#if __name__ == "__main __":
+infile = open(sys.argv[1], "r")
+
+vertices = []
+edges = {}
+
 g=FlowNetwork()
-map(g.add_vertex, ['s','o','p','q','r','t'])
-g.add_edge('s','o',3)
-g.add_edge('s','p',3)
-g.add_edge('o','p',2)
-g.add_edge('o','q',3)
-g.add_edge('p','r',2)
-g.add_edge('r','t',3)
-g.add_edge('q','r',4)
-g.add_edge('q','t',2)
+
+for line in infile:
+    split_line = line.split("\t")
+    v, n = json.loads(split_line[0]), json.loads(split_line[1])
+    vertices.append(v)
+    
+    for edge in n:
+        e_v, e_c = edge
+        edge_id = str(v) + "," + str(e_v)
+        edges[edge_id] = e_c  
+        
+map(g.add_vertex, vertices)
+
+for key in edges:
+    u, v = key.split(",")
+    g.add_edge(u, v, edges[key])
+    
 print g.max_flow('s','t')
