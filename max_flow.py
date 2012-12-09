@@ -1,13 +1,37 @@
+"""
+CS205 Final Project -- Joshua Lee and Mona Huang
+TF: Verena Kaynig-Fittkau
+Project: Parallel Max-Flow Min-Cut 
+
+usuage: called from driver
+input: infile to MapReduce 
+output: outfile of MapReduce 
+
+max_flow.py contains the Mapper and Reducer for the Max-Flow 
+MapReduce jobs. 
+"""
+
+# Library imports
 from mrjob.job import MRJob
 from mrjob.protocol import JSONProtocol
-
-import accumulator as acc
 import sys
 import json
 
-# MAPPER HELPER FUNCTIONS
-MAX_PATHS = 10 # k
+# Project imports
+import accumulator as acc
 
+"""
+Constant defining maximum number of source 
+excess paths that can be accepted by accumulator
+"""
+MAX_PATHS = 10 
+
+""" MAPPER HELPER FUNCTIONS """
+
+"""
+edge_forms_cycle checks to make sure that adding an edge
+to a path does not create a cycle
+"""
 def edge_forms_cycle(new_edge, path):
   sys.stderr.write("path: " + str(path) + "\n")
   v = new_edge[0]
@@ -18,6 +42,9 @@ def edge_forms_cycle(new_edge, path):
       return True
   return False
 
+"""
+update_edge 
+"""
 def update_edge(edge, augmented_edges, saturated_edges):
   # sys.stderr.write("edge type: " + str(type(edge)) + "\t" + "edge: " + str(edge) + "\n")
   e_v, e_id, e_f, e_c = edge[0], edge[1], edge[2], edge[3]
@@ -40,20 +67,10 @@ class MRFlow(MRJob):
     saturated_edges = []
                 
     augmented_edges = node_info.pop()
-    # first = node_info.pop()
-    # if first == 1:
-    #   inf = open("edges.txt", "r")
-    #   augmented_edges = json.loads(inf.readline())
-    # else:
-    #   augmented_edges = {}
-    
-    sys.stderr.write(str(type(augmented_edges)))
     
     # update edges in S_u, T_u, and E_u with augmented_edges
     S_u, T_u, E_u = node_info
-    
-    sys.stderr.write("(M) " + str(u) + ": S_u: " + str(S_u) + "\t" + "T_u: " + str(T_u) + "\t" + "E_u: " + str(E_u) + "\n")
-    
+        
     for edge in E_u:
       update_edge(edge, augmented_edges, saturated_edges)
     for path in S_u:
@@ -63,18 +80,6 @@ class MRFlow(MRJob):
       for edge in path:
         update_edge(edge, augmented_edges, saturated_edges)
 
-    # for e_v, e_id, e_f, e_c in E_u:
-    #   if (e_f >= e_c and e_id not in saturated_edges):
-    #     saturated_edges.append(e_f)
-    # for path in S_u:
-    #   for e_v, e_id, e_f, e_c in path:
-    #     if (e_f >= e_c and e_id not in saturated_edges):
-    #       saturated_edges.append(e_f)
-    # for path in T_u:
-    #   for e_v, e_id, e_f, e_c in path:
-    #     if (e_f >= e_c and e_id not in saturated_edges):
-    #       saturated_edges.append(e_f)
-    
     # remove saturated excess paths
     for e_id in saturated_edges:    
       for path in S_u:
@@ -92,10 +97,7 @@ class MRFlow(MRJob):
       for sink_path in T_u:
         augmenting_path = source_path + sink_path
         if accumulator.accept(augmenting_path):
-          sys.stderr.write("accepted aug. path: " + str(augmenting_path) + "\n")
           yield ("t", [[augmenting_path], [], []])
-        else:
-          sys.stderr.write("rejected aug. path: " + str(augmenting_path) + "\n")          
     
     # reseed S's neighbors
     if u == "s":
@@ -105,8 +107,6 @@ class MRFlow(MRJob):
     
     # extends source excess paths
     if len(S_u) != 0:
-      sys.stderr.write("len S_u = " + str(len(S_u)) + "\n")
-      sys.stderr.write("S_u = " + str(S_u) + "\n")
       for edge in E_u:
         e_v, e_f, e_c = edge[0], edge[2], edge[3]
         if e_f < e_c:
@@ -114,14 +114,8 @@ class MRFlow(MRJob):
             if not edge_forms_cycle(edge, source_path):
               new_path = source_path[:]
               new_path.append(edge)
-              sys.stderr.write("D source_path = " + str(new_path) + "\n")
-              sys.stderr.write("extended source path: " + str(new_path) + "\n")
               yield(e_v, [[new_path], [], []])
-              # break
-            else:
-              sys.stderr.write("CYCLE\n")
-              sys.stderr.write("path: " + str(source_path))
-              sys.stderr.write("\nedge: " + str(edge))
+
     
     # extends sink excess paths
     # if len(T_u) != 0:
