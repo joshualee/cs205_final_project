@@ -31,6 +31,13 @@ class FlowNetwork(object):
         self.adj[v].append(redge)
         self.flow[edge] = 0
         self.flow[redge] = 0
+        
+    def edgeinpath(self,edge, path):
+      print "looking for edge in path"
+      for (pedge, presidual) in path:
+        if pedge == edge or pedge == edge.redge:
+          return True
+      return False
  
     def find_path(self, source, sink, path):
         if source == sink:
@@ -38,9 +45,8 @@ class FlowNetwork(object):
         find_path_iter = 0 
         for edge in self.get_edges(source):
             find_path_iter += 1
-            print "FIND PATH ITER " + str(find_path_iter)
             residual = edge.capacity - self.flow[edge]
-            if residual > 0 and not (edge,residual) in path:
+            if residual > 0 and not self.edgeinpath(edge, path):
                 result = self.find_path( edge.sink, sink, path + [(edge,residual)] )
                 if result != None:
                     return result
