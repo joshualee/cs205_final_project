@@ -33,20 +33,19 @@ edge_forms_cycle checks to make sure that adding an edge
 to a path does not create a cycle
 """
 def edge_forms_cycle(new_edge, path):
-  sys.stderr.write("path: " + str(path) + "\n")
   v = new_edge[0]
   for edge in path:
     u = edge[0]
     if u == v:
-      print "edge forms cycle " + str(u)  + ","  + str(v)
       return True
   return False
 
 """
-update_edge 
+update_edge updates the flow of an edge in augmented_edges
+and adds it to a list of saturated edges if its flow is 
+greater than or equal to its capacity
 """
 def update_edge(edge, augmented_edges, saturated_edges):
-  # sys.stderr.write("edge type: " + str(type(edge)) + "\t" + "edge: " + str(edge) + "\n")
   e_v, e_id, e_f, e_c = edge[0], edge[1], edge[2], edge[3]
   if e_id in augmented_edges:
     a_f = augmented_edges[e_id]
@@ -55,7 +54,10 @@ def update_edge(edge, augmented_edges, saturated_edges):
 
     if (e_f >= e_c and saturated_edges.count(e_id) == 0):
       saturated_edges.append(e_id)
-      
+ 
+"""
+MapReduce class
+"""
 class MRFlow(MRJob):
   INPUT_PROTOCOL = JSONProtocol
   OUTPUT_PROTOCOL = JSONProtocol
@@ -64,13 +66,17 @@ class MRFlow(MRJob):
     super(MRFlow, self).__init__(*args, **kwargs)
 
   def mapper(self, u, node_info):
-    saturated_edges = []
-                
+    saturated_edges = [] 
+    
+    # dictionary containing edges that were augumented from previous
+    # MapReduce job
     augmented_edges = node_info.pop()
     
     # update edges in S_u, T_u, and E_u with augmented_edges
     S_u, T_u, E_u = node_info
         
+    # updates E_u, S_u, and T_u based on the augmented_edges
+    # and addes saturated edges to saturated_edges
     for edge in E_u:
       update_edge(edge, augmented_edges, saturated_edges)
     for path in S_u:
@@ -115,25 +121,10 @@ class MRFlow(MRJob):
               new_path = source_path[:]
               new_path.append(edge)
               yield(e_v, [[new_path], [], []])
-
-    
-    # extends sink excess paths
-    # if len(T_u) != 0:
-    #   for edge in E_u:
-    #     e_v, e_f, e_c = edge[0], edge[2], edge[3]
-    #     if -e_f < e_c:
-    #       for sink_path in T_u:
-    #         if not edge_forms_cycle(edge, sink_path):
-    #           new_path = sink_path[:]
-    #           new_path.insert(0, edge)
-    #           sys.stderr.write("extended sink path: " + str(new_path))
-    #           yield(e_v, [[], [new_path], []])
-    #           break
     
     yield(u, [S_u, T_u, E_u])
     
   def reducer(self, u, values):
-      
     # initialize new Accumulators
     A_p, A_s, A_t = acc.Accumulator(), acc.Accumulator(), acc.Accumulator()
      
@@ -161,20 +152,10 @@ class MRFlow(MRJob):
     # initalize counter
     self.increment_counter("move", "source", 0)
     self.increment_counter("move", "source", 0)
-    self.increment_counter("move", "sink", 0)
-    
-    # if (len(S_m) == 0 and len(S_u) > 0):
-    #   self.increment_counter("move", "source", 1)
-      
     self.increment_counter("move", "source", len(S_u))
-    
-    if (len(T_m) == 0 and len(T_u) > 0):
-      self.increment_counter("move", "sink", 1) 
-    
+
     if (u == "t"):
       yield "A_p", A_p.edges
-
-    sys.stderr.write("(R) " + str(u) + ": S_u: " + str(S_u) + "\t" + "T_u: " + str(T_u) + "\t" + "E_u: " + str(E_u) + "\n")
 
     yield (u, [S_u, T_u, E_u])
 
