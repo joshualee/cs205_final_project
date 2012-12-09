@@ -248,7 +248,7 @@ def diff(l1, l2):
   return diff_list
 
 def run(in_graph_file):
-  mr_file_name = "tmp/mr_max_flow.txt"
+  mr_file_name = "mr_max_flow.txt"
 
   original_graph = file_to_graph(in_graph_file)
   mr_graph = mr_graph_convert(original_graph)
@@ -266,8 +266,8 @@ def run(in_graph_file):
   while converge_count != 0:
    infile = open(mr_file_name, "r")
 
-   # mr_job = max_flow.MRFlow(args=['-r', 'emr'])
-   mr_job = max_flow.MRFlow()
+   mr_job = max_flow.MRFlow(args=['-r', 'emr'])
+   # mr_job = max_flow.MRFlow()
    mr_job.stdin = infile
 
    with mr_job.make_runner() as runner:
