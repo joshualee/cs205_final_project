@@ -15,10 +15,14 @@ class Max_Flow(object):
       # print "Path " + str(path)
       residual = capacity - self.flow[edge_id]
       # print "Residual on edge " + str(edge_id) + " = " + str(residual)
- 
-      if residual > 0 and path.count([neighbor, edge_id, r_id, residual]) == 0:
-
-        new_edge = [neighbor, edge_id, r_id, residual]
+      new_edge = [neighbor, edge_id, r_id, residual]
+      
+      if_count = 0 
+      if residual > 0 and new_edge not in path:
+        #print "\t" + str(path)
+        if len(path) > 1:
+          print "{0}: path start: {1} path end: {2}".format(if_count, path[0], path[-11:])
+          print "\n"
         # print "creating new edge " + str(new_edge)
         
         new_path = path[:]
@@ -28,23 +32,33 @@ class Max_Flow(object):
 
         if result != None:
           return result
-    
-  def max_flow(self, source, sink):
-    path = self.find_path(source, sink, [])
 
-    
+        if_count += 1
+
+  def max_flow(self, source, sink):
+    iter = 0 
+    print "first path"
+    path = self.find_path(source, sink, [])
+    print "done first path"
     while path != None:
 
+      print "looking for path " + str(iter)
+      iter += 1
       flow = min(residual for [e_v, e_id, r_id, residual] in path)
       # print "Min flow " + str(flow)
       # print "path in max_flow" + str(path)
+      print "PATH LENGTH " + str(len(path))
+      path_iter = 0 
       for e_v, e_id, r_id, e_c in path:
-        # print "Adding flow to edge " + str(e_id)
-        # print "Subtracting flow from edge " + str(r_id) + "\n"
+        print "looking in path " + str(path_iter)
+        path_iter += 1
+      
+        #print "Adding flow to edge " + str(e_id)
+        #print "Subtracting flow from edge " + str(r_id) + "\n"
         self.flow[e_id] += flow
         self.flow[r_id] -= flow 
 
-      
+      print "calling find path"
       path = self.find_path(source, sink, [])
 
     max_flow = 0 
@@ -76,25 +90,15 @@ def create_graph(infile_name):
       e_id = 0
       r_id = 0
 
-      if e_v in adj:
-        for v, eid, rid, ec in adj[e_v]:
-          if v == vertex_id:
-            e_id = rid
-            r_id = eid
-      else:
-        e_id = e_id_counter
-        r_id = e_id_counter + 1
-        e_id_counter += 2
-        
-      new_edge = [e_v, str(e_id), str(r_id), e_c]
+      new_edge = [e_v, str(vertex_id) + "," + str(e_v), str(e_v) + "," + str(vertex_id), e_c]
 
       if vertex_id in adj:
         adj[vertex_id].append(new_edge)
       else:
         adj[vertex_id] = [new_edge]
 
-      flow[str(e_id)] = 0 
-      flow[str(r_id)] = 0 
+      flow[str(vertex_id) + "," + str(e_v)] = 0 
+      flow[str(e_v) + "," + str(vertex_id)] = 0 
   
   # print "Adjacency Matrix"
   # for key in adj:
@@ -103,7 +107,9 @@ def create_graph(infile_name):
   return adj, flow
         
 if __name__ == '__main__':
-    
+
+  sys.setrecursionlimit(2000)
+
   file_name = sys.argv[1]
   infile = "../graphs/generated_graphs/" + file_name
 

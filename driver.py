@@ -300,7 +300,7 @@ def run(in_graph_file):
      move_counts = runner.counters()[0]["move"]
      print move_counts
      if move_counts["source"] == previous_count:
-       converge_count -= 1
+      converge_count -= 1
      else:
        converge_count = 5
      previous_count = move_counts["source"]
@@ -344,6 +344,15 @@ def run(in_graph_file):
   print "S-T Flow Calculation:"
   print "\ts: {0} \n \tt: {1}".format(alternative_flow_s, alternative_flow_t)
   
+  alternative_flow = 0
+  for key in augmented_edges:
+    #print str(key)
+    src, sink = key.split(",")
+    if sink == "t": 
+      alternative_flow += augmented_edges[key]
+
+  print "Alternative Flow Calculation : " + str(alternative_flow)
+
   return min_cut, preordering
 
 if __name__ == '__main__':
