@@ -7,37 +7,28 @@ class Max_Flow(object):
     self.adj = adj
     self.flow = flow
     self.previous_calls = []
+    
+ 
+  def edge_in_path(self, edge, path):
+    e_v, e_id, r_id, e_r = edge
+    for pe_v, pe_id, pr_id, pe_r in path:
+      if pe_id == e_id or pe_id == r_id:
+        return True
+    return False
 
   def find_path(self, source, sink, path):
     if source == sink:
       return path
   
     for neighbor, edge_id, r_id, capacity in self.adj[source]:
-      # print "Neigh " + str(neighbor) + "  Edge ID " + str(edge_id)
-      # print "Path " + str(path)
       residual = capacity - self.flow[edge_id]
-      # print "Residual on edge " + str(edge_id) + " = " + str(residual)
       new_edge = [neighbor, edge_id, r_id, residual]
       
       if_count = 0 
-      if residual > 0 and new_edge not in path:
-        #print "\t" + str(path)
-        if len(path) > 1:
-          print "{0}: path start: {1} path end: {2}".format(if_count, path[0], path[-11:])
-          print "\n"
-        # print "creating new edge " + str(new_edge)
-        
+      if residual > 0 and not self.edge_in_path(new_edge, path):
         new_path = path[:]
         new_path.append(new_edge)
-        print "precall: {0}".format(new_edge)
-        new_call = (neighbor, sink, new_path)
-        print "previous calls: {0}".format(self.previous_calls)
-        if new_call not in self.previous_calls:
-          self.previous_calls.append(new_call)
-          result = self.find_path(neighbor, sink, new_path)
-        else:
-          result = None
-        print "postcall: {0}".format(new_edge)
+        result = self.find_path(neighbor, sink, new_path)
 
         if result != None:
           return result
@@ -45,32 +36,17 @@ class Max_Flow(object):
         if_count += 1
 
   def max_flow(self, source, sink):
-    iter = 0 
-    print "first path"
     path = self.find_path(source, sink, [])
-    print "done first path"
     while path != None:
-      print "looking for path " + str(iter)
-      iter += 1
       flow = min(residual for [e_v, e_id, r_id, residual] in path)
       # print "Min flow " + str(flow)
       # print "path in max_flow" + str(path)
-      print "PATH LENGTH " + str(len(path))
-      path_iter = 0 
       for e_v, e_id, r_id, e_c in path:
-        print "looking in path " + str(path_iter)
-        path_iter += 1
       
-        #print "Adding flow to edge " + str(e_id)
-        #print "Subtracting flow from edge " + str(r_id) + "\n"
         self.flow[e_id] += flow
         self.flow[r_id] -= flow 
 
-      print "calling find path"
-      self.previous_calls = []
       path = self.find_path(source, sink, [])
-      print "NEW CALL"
-      time.sleep(.5)
 
     max_flow = 0 
     for e_v, e_id, r_id, e_c in self.adj[source]:
