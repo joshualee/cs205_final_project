@@ -1,84 +1,71 @@
 import sys
 import json
 import time
+import collections as col
+from pygraph.classes.digraph import digraph
+from pygraph.algorithms.searching import depth_first_search
+from pygraph.algorithms.filters.find import find
 
 class Max_Flow(object):
-  def __init__(self, adj, flow):
-    self.adj = adj
-    self.flow = flow
-    self.previous_calls = []
+  def __init__(self, graph):
+    self.flow = col.defaultdict(int)
+    self.graph = graph
 
-  def find_path(self, source, sink, path):
-    if source == sink:
+    self.original_graph = digraph()
+    self.original_graph.add_nodes(self.graph.nodes())
+    for edge in self.graph.edges():
+      self.original_graph.add_edge(edge, wt=self.graph.edge_weight(edge))
+
+  def find_path(self):
+    filt = find("t")
+    st, _, _ = depth_first_search(self.graph, "s", filter=filt)
+    if "t" not in st:
+      return None
+    else:
+      path = []
+      sink = "t"
+      while sink != "s":
+        src = st[sink]
+        new_edge = (src, sink, self.graph.edge_weight((src, sink)))
+        path.insert(0, new_edge)
+        sink = src
       return path
-  
-    for neighbor, edge_id, r_id, capacity in self.adj[source]:
-      # print "Neigh " + str(neighbor) + "  Edge ID " + str(edge_id)
-      # print "Path " + str(path)
-      residual = capacity - self.flow[edge_id]
-      # print "Residual on edge " + str(edge_id) + " = " + str(residual)
-      new_edge = [neighbor, edge_id, r_id, residual]
-      
-      if_count = 0 
-      if residual > 0 and new_edge not in path:
-        #print "\t" + str(path)
-        if len(path) > 1:
-          print "{0}: path start: {1} path end: {2}".format(if_count, path[0], path[-11:])
-          print "\n"
-        # print "creating new edge " + str(new_edge)
-        
-        new_path = path[:]
-        new_path.append(new_edge)
-        print "precall: {0}".format(new_edge)
-        new_call = (neighbor, sink, new_path)
-        print "previous calls: {0}".format(self.previous_calls)
-        if new_call not in self.previous_calls:
-          self.previous_calls.append(new_call)
-          result = self.find_path(neighbor, sink, new_path)
-        else:
-          result = None
-        print "postcall: {0}".format(new_edge)
 
-        if result != None:
-          return result
-
-        if_count += 1
-
-  def max_flow(self, source, sink):
-    iter = 0 
-    print "first path"
-    path = self.find_path(source, sink, [])
-    print "done first path"
+  def max_flow(self):
+    path = self.find_path()
     while path != None:
-      print "looking for path " + str(iter)
-      iter += 1
-      flow = min(residual for [e_v, e_id, r_id, residual] in path)
-      # print "Min flow " + str(flow)
-      # print "path in max_flow" + str(path)
-      print "PATH LENGTH " + str(len(path))
-      path_iter = 0 
-      for e_v, e_id, r_id, e_c in path:
-        print "looking in path " + str(path_iter)
-        path_iter += 1
+      flow = min(curr_cap for (u, v, curr_cap) in path)
+    
+      print "Path : " + str(path)
+      for u, v, curr_cap in path:
+        new_weight = curr_cap - flow
+        if new_weight > 0:
+          self.graph.set_edge_weight((u, v), new_weight)
+          if (self.graph.has_edge((v, u))):
+            curr_weight = self.graph.edge_weight((v, u))
+            self.graph.set_edge_weight((v, u), curr_weight + flow)
+          else:
+            self.graph.add_edge((v, u), wt=flow)
+        elif new_weight == 0:
+          if self.graph.has_edge((u,v)):
+            self.graph.del_edge((u,v))
+      path = self.find_path()
+    
+    s_neighbors = self.original_graph.neighbors("s")
+    max_flow = 0
+    for v in s_neighbors:      
+      edge = ("s", v)
+      original_capacity = self.original_graph.edge_weight(edge)
+      if self.graph.has_edge(edge):
+        new_capacity = self.graph.edge_weight(edge)
+      else:
+        new_capacity = 0
       
-        #print "Adding flow to edge " + str(e_id)
-        #print "Subtracting flow from edge " + str(r_id) + "\n"
-        self.flow[e_id] += flow
-        self.flow[r_id] -= flow 
-
-      print "calling find path"
-      self.previous_calls = []
-      path = self.find_path(source, sink, [])
-      print "NEW CALL"
-      time.sleep(.5)
-
-    max_flow = 0 
-    for e_v, e_id, r_id, e_c in self.adj[source]:
-      #print "e_v : " + str(e_v) + "   flow : " + str(self.flow[e_id]) + "   eid : " + str(e_id)
-      max_flow += self.flow[e_id]
-
+      flow = original_capacity - new_capacity
+      max_flow += flow
+      
     return max_flow
-
+    
 def extract_key_value(line):
   split_line = line.split("\t")
   key = json.loads(split_line[0])
@@ -87,45 +74,56 @@ def extract_key_value(line):
 
 def create_graph(infile_name):
   infile = open(infile_name, "r")
-
-  adj = {} 
-  flow = {}
-  edges = {}
-
-  e_id_counter = 0
+  
+  g = digraph()
   
   for line in infile:
-    vertex_id, edges = extract_key_value(line)
-        
-    for e_v, e_c in edges:
-      e_id = 0
-      r_id = 0
-
-      new_edge = [e_v, str(vertex_id) + "," + str(e_v), str(e_v) + "," + str(vertex_id), e_c]
-
-      if vertex_id in adj:
-        adj[vertex_id].append(new_edge)
-      else:
-        adj[vertex_id] = [new_edge]
-
-      flow[str(vertex_id) + "," + str(e_v)] = 0 
-      flow[str(e_v) + "," + str(vertex_id)] = 0 
+    u, edges = extract_key_value(line)
+    if not g.has_node(u):
+      g.add_node(u)
+    for v, e_c in edges:
+      if not g.has_node(v):
+        g.add_node(v)
+      g.add_edge((u,v), wt=e_c)
+  
+  return g
+  
+  # adj = {} 
+  #  flow = {}
+  #  edges = {}
+  # 
+  #  e_id_counter = 0
+  #        
+  #    for e_v, e_c in edges:
+  #      e_id = 0
+  #      r_id = 0
+  # 
+  #      new_edge = [e_v, str(vertex_id) + "," + str(e_v), str(e_v) + "," + str(vertex_id), e_c]
+  # 
+  #      if vertex_id in adj:
+  #        adj[vertex_id].append(new_edge)
+  #      else:
+  #        adj[vertex_id] = [new_edge]
+  # 
+  #      flow[str(vertex_id) + "," + str(e_v)] = 0 
+  #      flow[str(e_v) + "," + str(vertex_id)] = 0 
   
   # print "Adjacency Matrix"
   # for key in adj:
   #  print str(key) + "\t" + str(adj[key]) + "\n"
 
-  return adj, flow
+  # return adj, flow
         
 if __name__ == '__main__':
+  args = sys.argv
+  if len(args) != 2:
+    print "usage: python serial.py infile"
+    sys.exit(-1)
+  
+  infile = "../graphs/generated_graphs/" + sys.argv[1]
 
-  sys.setrecursionlimit(2000)
+  graph = create_graph(infile)
+  max_flow = Max_Flow(graph)
 
-  file_name = sys.argv[1]
-  infile = "../graphs/generated_graphs/" + file_name
-
-  adj, flow = create_graph(infile)
-  max_flow = Max_Flow(adj, flow)
-
-  x = max_flow.max_flow("s", "t")
-  print "X " + str(x)
+  x = max_flow.max_flow()
+  print "max_flow : " + str(x)
