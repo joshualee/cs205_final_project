@@ -1,3 +1,17 @@
+"""
+CS205 Final Project -- Joshua Lee and Mona Huang
+TF: Verena Kaynig-Fittkau
+Project: Parallel Max-Flow Min-Cut 
+
+usuage: python driver.py <infile>
+input: infile that holds graph 
+output: integer representing max-flow of input graph 
+
+driver.py manages the iterations of MapReduce used to calculate
+the maximum flow of a graph from a specified infile. See README 
+for acceptable graph format. 
+"""
+
 # Library imports
 from pygraph.classes.digraph import digraph
 from pygraph.algorithms.searching import depth_first_search
@@ -9,9 +23,13 @@ import subprocess
 import numpy as np
 import matplotlib.image as img
 
-# Our Project
+# Project imports
 import max_flow
 
+"""
+merge_edge_flow merges the edges in a new path into the existing 
+set of augmented edges 
+"""
 def merge_edge_flow(master, new):
   for edge, flow in new.iteritems():
     if flow == 0:
@@ -21,18 +39,19 @@ def merge_edge_flow(master, new):
     else:
       master[edge] = flow
 
+"""
+extract_key_value returns the key and value from a json encoded line
+"""
 def extract_key_value(line):
   split_line = line.split("\t")
   key = json.loads(split_line[0])
   value = json.loads(split_line[1])
   return key, value
 
-def validate_edge(edge):
-  e_v, e_id, e_f, e_c = edge
-  if e_c < 0:
-    print "cannot have negative edge capacity"
-    sys.exit(-1)
-
+"""
+file_to_graph converts a graph representation from a file to a 
+directed graph. 
+"""
 def file_to_graph(graph_file_path):
   graph_file = open(graph_file_path, "r")
   g = digraph()
@@ -46,41 +65,30 @@ def file_to_graph(graph_file_path):
         g.add_node(v)
       g.add_edge((u, v), wt=e_c)
   return g
-
-def graph_file_to_dict(graph_file):
-  graph = open(graph_file, "r")
-  d = {}
-  for line in graph:
-    u, edges = extract_key_value(line)
-    d[str(u)] = edges
-  return d
-
-# def graph_to_file(g, outfile_path):
-#   outfile = open(outfile_path, "w")
-#   for u in g.nodes():
-
+  
+"""
+dict_to_graph_file converts a dictionary representation of a graph 
+to an acceptable form to be written to an outfile. To learn more 
+about the file representation of the graph, see README.
+"""
 def dict_to_graph_file(d, outfile_path):
   outfile = open(outfile_path, "w")
   for vertex_id, vertex_info in d.iteritems():
     vertex_info.append({})
-    # vertex_info.append(0)
     new_line = json.dumps(vertex_id) + "\t" + json.dumps(vertex_info) + "\n"
     outfile.write(new_line)
   outfile.close()
 
-def insert_back_edges(g):
-  for u in g.nodes():
-    for v in g.neighbors(u):
-      if not g.has_edge((v, u)):
-        g.add_edge((v, u), wt=0)
-
+"""
+mr_graph_convert converts a digraph containing nodes and their edges into 
+a dictionary representation of the graph that has keys representing nodes 
+and values [S_u, T_u, E_u]. S_u, T_u, E_u are defined in README. 
+"""
 def mr_graph_convert(g):
   s_neighbors = {}
   new_graph = {}
   back_edges = {}
   
-  # insert_back_edges(g)
-
   for u in g.nodes():
     E_u = []
     S_u = []
@@ -107,45 +115,12 @@ def mr_graph_convert(g):
     sys.exit(-1)
 
   return new_graph
-
-# def mr_graph_convert(d):
-#   s_neighbors = {}
-#   new_graph = {}
-#   back_edges = {}
-#   
-#   for vertex_id, edges in d.iteritems():
-#     E_u = []
-#     S_u = []
-#     T_u = []
-# 
-#     for e_v, e_c in edges:
-#       new_edge = [e_v, str(vertex_id) + "," + str(e_v), 0, e_c]
-#       validate_edge(new_edge)
-#       E_u.append(new_edge)
-#       
-#       back_edge = [vertex_id, "{0},{1}".format(e_v, vertex_id), 0, 0]
-#       if e_v in back_edges:
-#         back_edges[e_v].append(back_edge)
-#       else:
-#         back_edges[e_v] = [back_edge]
-# 
-#       # assumes verticies in neighbor list are unique
-#       if vertex_id == "s":
-#         s_neighbors[e_v] = new_edge
-#       if e_v == "t":
-#         T_u.append([new_edge])
-# 
-#     new_graph[vertex_id] = [S_u, T_u, E_u]
-# 
-#   for vertex_id, edge in s_neighbors.iteritems():
-#     new_graph[vertex_id][0] = [[edge]]
-# 
-#   if "s" not in new_graph or "t" not in new_graph:
-#     print "need to provide source and sink verticies"
-#     sys.exit(-1)
-#   
-#   return new_graph
   
+  
+""" 
+dict_graph_to_python_graph converts a dictionary representation of a graph 
+into a directed graph using the python library. 
+"""
 def dict_graph_to_python_graph(d):
   g = digraph()
   g.add_nodes(d.keys())
@@ -154,7 +129,12 @@ def dict_graph_to_python_graph(d):
       e_v, e_c = edge
       g.add_edge((u, e_v), wt=e_c)
   return g
-
+  
+  
+"""
+augment_graph updates a graph based on a set of augmented_edges that 
+contains edges and the flow that can be pushed across the edge
+"""
 def augment_graph(graph, augmented_edges):
   # copy graph
   g = digraph()
@@ -190,45 +170,28 @@ def augment_graph(graph, augmented_edges):
   for edge in g.edges():
     if g.edge_weight(edge) == 0:
       g.del_edge(edge)
-  
-  # for u, edges in graph.iteritems():
-  #   for edge in edges:
-  #     e_v, e_c = edge
-  #     e_id = str(u) + "," + str(e_v)
-  #     if e_id in augmented_edges:
-  #       new_capacity = e_c - augmented_edges[e_id]
-  #       if new_capacity > 0:
-  #         augmented_graph.add_edge((u, e_v))
-  #       elif new_capacity < 0:
-  #         print "Fatal error: negative capacity in augmented graph"
-  #         sys.exit(-1)
 
   return g
-
-# 
-# def find_min_cut(graph, cut):
-#   
-#   for edge in edges
-
-def find_min_cut(graph, cut_nodes):
+  
+"""
+find_max_flow finds the maximum flow in a graph given the corresponding
+edges on one side of the cut of the graph. 
+"""
+def find_max_flow(graph, s_side_cut_nodes):
   min_cut = 0
   for edge in graph.edges():
     u, v = edge
-    if u in cut_nodes and v not in cut_nodes:
+    
+    # edges that have nodes on different sides of the cut
+    # contribute to the maximum flow
+    if u in s_side_cut_nodes and v not in s_side_cut_nodes:
       min_cut += graph.edge_weight(edge)
   return min_cut
-  # 
-  # min_cut = 0
-  # for u, edges in graph.iteritems():
-  #   for edge in edges:
-  #     e_v, e_c = edge
-  #     e_id = str(u) + "," + str(e_v)
-  #     if e_id in augmented_edges:
-  #       new_c = e_c - augmented_edges[e_id]
-  #       if new_c == 0 and u in cut and e_v not in cut:
-  #         min_cut += e_c
-  # return min_cut
   
+"""
+find_min_cut_serial finds the maximum flow and minimum cut edges 
+of a graph in serial 
+"""
 def find_min_cut_serial(graph):  
   flow, cut = maximum_flow(graph, "s", "t")
   
@@ -237,44 +200,46 @@ def find_min_cut_serial(graph):
     if i == 0:
       serial_cut.append(str(u))
   
-  min_cut = cut_value(graph, flow, cut)
-  return int(min_cut), serial_cut
+  # finds corresponding max_flow value from 
+  # cut using library function cut_value 
+  max_flow = cut_value(graph, flow, cut)
+  return int(max_flow), serial_cut
 
-def diff(l1, l2):
-  diff_list = []
-  for e1 in l1:
-    if e1 not in l2:
-      diff_list.append(e1)
-  return diff_list
-
+"""
+fun accepts a file representation of a graph and finds the maximum 
+flow of the graph through multiple iterations of MapReduce. For more
+information on the MapReduce process, see max_flow.py. run updates 
+the graph based on edges augmented from each iteration of MapReduce
+and checks for convergence of the max-flow algorithm when no augmented
+paths are added after a MapReduce job. 
+"""
 def run(in_graph_file):
+  # converts a graph in an acceptable form into a representation 
+  # that is usable in MapReduce
   mr_file_name = "mr_max_flow.txt"
-
   original_graph = file_to_graph(in_graph_file)
   mr_graph = mr_graph_convert(original_graph)
   dict_to_graph_file(mr_graph, mr_file_name)
   
-  edge_file = open("edges.txt", "w")
-  edge_file.write("")
-  
-  counter = 0
   augmented_edges = {}
   
+  # counters to keep track of convergence of MapReduce jobs
   converge_count = 5
   previous_count = -1
   
   while converge_count != 0:
    infile = open(mr_file_name, "r")
 
-   mr_job = max_flow.MRFlow(args=['-r', 'emr'])
-   # mr_job = max_flow.MRFlow()
+   # uncomment to run on emr
+   # mr_job = max_flow.MRFlow(args=['-r', 'emr'])
+   
+   mr_job = max_flow.MRFlow()
    mr_job.stdin = infile
 
    with mr_job.make_runner() as runner:
-     print "iteration {0}...".format(counter)
-     
-     # perform iteration of map reduce
+     # perform iteration of MapReduce
      runner.run()
+     
      # process map reduce output
      out_buffer = []
      for line in runner.stream_output():
@@ -307,57 +272,22 @@ def run(in_graph_file):
 
    infile.close()    
    outfile.close()
-   counter += 1
   
-  print "augmented_edges", augmented_edges
   # augment graph based on max flow
   # original_graph = dict_graph_to_python_graph(original_graph_dict)
   augmented_graph = augment_graph(original_graph, augmented_edges)
   
   # find cut
   spanning_tree, preordering, postordering = depth_first_search(augmented_graph, "s")
-  min_cut = find_min_cut(original_graph, preordering)
+  min_cut = find_max_flow(original_graph, preordering)
   min_cut_serial, serial_cut = find_min_cut_serial(original_graph)
-  
-  serial_cut = sorted(serial_cut)
-  parallel_cut = sorted([str(i) for i in preordering])
-  S_P = diff(serial_cut, parallel_cut)
-  P_S = diff(parallel_cut, serial_cut)
-  
+
   print "Min Cut: \n\t parallel: {0} \n\t serial: {1}".format(min_cut, min_cut_serial)
-  
-  print "Parallel cut (P): {0}".format(parallel_cut)
-  print "Serial cut (S):   {0}".format(serial_cut)
-  print "S - P: {0}".format(S_P)
-  print "P - S: {0}".format(P_S)
-  
-  alternative_flow_t = 0
-  alternative_flow_s = 0
-  for key in augmented_edges:
-    #print str(key)                                                                                     
-    src, sink = key.split(",")
-    if src == "s":
-      alternative_flow_s += augmented_edges[key]
-    if sink == "t":
-      alternative_flow_t += augmented_edges[key]
-
-  print "S-T Flow Calculation:"
-  print "\ts: {0} \n \tt: {1}".format(alternative_flow_s, alternative_flow_t)
-  
-  alternative_flow = 0
-  for key in augmented_edges:
-    #print str(key)
-    src, sink = key.split(",")
-    if sink == "t": 
-      alternative_flow += augmented_edges[key]
-
-  print "Alternative Flow Calculation : " + str(alternative_flow)
-
-  return min_cut, preordering
+  retsurn min_cut, preordering
 
 if __name__ == '__main__':
   if len(sys.argv) != 2:
-    print "usage: python driver.py infile"
+    print "usage: python driver.py <infile>"
     sys.exit(-1)
   
   in_graph_file = sys.argv[1]
