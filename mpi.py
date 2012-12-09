@@ -1,6 +1,8 @@
+import sys
+sys.path.append('./library/pg')
+
 from mpi4py import MPI
 import json
-import sys
 import numpy as np
 import time
 import collections as col
@@ -192,6 +194,12 @@ def master(infile):
   for i in xrange(1, size):
     updates[i] = []
   
+  # no path from s to t
+  if len(s_neighbors) == 0:
+    for p in xrange(1, size):
+      comm.send({"die": 0}, dest=p)
+    return 0
+  
   # seed jobs
   n = 0
   for i in xrange(1, size):
@@ -218,12 +226,13 @@ def master(infile):
         # reset converge count
         converge_count = 2 * len(s_neighbors)
       
-    if converge_count == 0:
+    if converge_count == 0 or len(s_neighbors) == 0:
       st, _, _ = depth_first_search(graph, "s")
       if "t" not in st:
         break
-      else:
-        converge_count = 2 * len(s_neighbors)
+      break
+      # else:
+      #   converge_count = 2 * len(s_neighbors)
                   
     new_node = s_neighbors[n % len(s_neighbors)]
     comm.send({"node" : new_node, "updates" : updates[slave_id]}, dest=slave_id)
@@ -243,6 +252,16 @@ def master(infile):
   
   return max_flow
 
+def run(infile):
+  if rank == 0:
+    start_time = MPI.Wtime()
+    max_flow = master(infile)
+    end_time = MPI.Wtime()
+    return max_flow, end_time - start_time
+  else:
+    slave()
+    return None, None
+
 if __name__ == '__main__':
   args = sys.argv
   if len(args) != 2:
@@ -251,11 +270,8 @@ if __name__ == '__main__':
   
   infile = sys.argv[1]
   
+  max_flow, time = run(infile)
   if rank == 0:
-    start_time = MPI.Wtime()
-    max_flow = master(infile)
-    end_time = MPI.Wtime()
     print "max flow = {0}".format(max_flow)
-    print "Time: %f secs" % (end_time - start_time)
-  else:
-    slave()
+    print "time: {0} secs".format(time)
+    print max_flow

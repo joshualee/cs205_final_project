@@ -13,9 +13,13 @@ for acceptable graph format.
 """
 
 # Library imports
-from pygraph.classes.digraph import digraph
-from pygraph.algorithms.searching import depth_first_search
-from pygraph.algorithms.minmax import maximum_flow, cut_value
+import sys
+sys.path.append('./library/pg')
+
+import digraph as pg
+from searching import depth_first_search
+# from pygraph.algorithms.minmax import maximum_flow, cut_value
+from minmax import maximum_flow, cut_value
 from mrjob.job import MRJob
 import json
 import sys
@@ -54,7 +58,7 @@ directed graph.
 """
 def file_to_graph(graph_file_path):
   graph_file = open(graph_file_path, "r")
-  g = digraph()
+  g = pg.digraph()
   for line in graph_file:
     u, edges = extract_key_value(line)
     if not g.has_node(u):
@@ -122,7 +126,7 @@ dict_graph_to_python_graph converts a dictionary representation of a graph
 into a directed graph using the python library. 
 """
 def dict_graph_to_python_graph(d):
-  g = digraph()
+  g = pg.digraph()
   g.add_nodes(d.keys())
   for u, edges in d.iteritems():
     for edge in edges:
@@ -137,7 +141,7 @@ contains edges and the flow that can be pushed across the edge
 """
 def augment_graph(graph, augmented_edges):
   # copy graph
-  g = digraph()
+  g = pg.digraph()
   g.add_nodes(graph.nodes())
   for edge in graph.edges():
     g.add_edge(edge, wt=graph.edge_weight(edge))
@@ -263,7 +267,6 @@ def run(in_graph_file):
 
      # check for convergence
      move_counts = runner.counters()[0]["move"]
-     print move_counts
      if move_counts["source"] == previous_count:
       converge_count -= 1
      else:
@@ -280,9 +283,7 @@ def run(in_graph_file):
   # find cut
   spanning_tree, preordering, postordering = depth_first_search(augmented_graph, "s")
   min_cut = find_max_flow(original_graph, preordering)
-  min_cut_serial, serial_cut = find_min_cut_serial(original_graph)
-
-  print "Min Cut: \n\t parallel: {0} \n\t serial: {1}".format(min_cut, min_cut_serial)
+  
   return min_cut, preordering
 
 if __name__ == '__main__':
@@ -291,4 +292,5 @@ if __name__ == '__main__':
     sys.exit(-1)
   
   in_graph_file = sys.argv[1]
-  run(in_graph_file)
+  max_flow, _ = run(in_graph_file)
+  print "max_flow={0}".format(max_flow)

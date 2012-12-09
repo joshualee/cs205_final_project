@@ -38,5 +38,4 @@ if __name__ == '__main__':
       else:
         segmented_image[i,j] = 0
   
-  print segmented_image
-  img.imsave(output_image, segmented_image, cmap="gray")
+  img.imsave("output/{0}".format(output_image), segmented_image, cmap="gray")
