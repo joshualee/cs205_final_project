@@ -12,19 +12,21 @@ specified infile. See README for acceptable graph format.
 """
 
 import sys
+sys.path.append('./library/pg')
+
 import json
 import time
 import collections as col
-from pygraph.classes.digraph import digraph
-from pygraph.algorithms.searching import depth_first_search
-from pygraph.algorithms.filters.find import find
+import digraph as pg
+from searching import depth_first_search
+from find import find
 
 class Max_Flow(object):
   def __init__(self, graph):
     self.flow = col.defaultdict(int)
     self.graph = graph
 
-    self.original_graph = digraph()
+    self.original_graph = pg.digraph()
     self.original_graph.add_nodes(self.graph.nodes())
     for edge in self.graph.edges():
       self.original_graph.add_edge(edge, wt=self.graph.edge_weight(edge))
@@ -109,7 +111,7 @@ adjacency list representation of a graph
 def create_graph(infile_name):
   infile = open(infile_name, "r")
   
-  g = digraph()
+  g = pg.digraph()
   
   # extracts the nodes and edges encoded in each line and 
   # inserts them into the graph g 
@@ -125,6 +127,12 @@ def create_graph(infile_name):
   infile.close()
   return g
 
+def run(infile):
+  graph = create_graph(infile)
+  max_flow = Max_Flow(graph)
+  x = max_flow.max_flow()
+  return x
+
 if __name__ == '__main__':
   args = sys.argv
   if len(args) != 2:
@@ -132,8 +140,5 @@ if __name__ == '__main__':
     sys.exit(-1)
   
   infile = sys.argv[1]
-  graph = create_graph(infile)
-  max_flow = Max_Flow(graph)
-
-  x = max_flow.max_flow()
-  print "Serial Max Flow : " + str(x)
+  max_flow = run(infile)
+  print "max flow = {0}".format(max_flow)

@@ -46,8 +46,9 @@ def convert(image_file, outfile):
 
   image = rgb_to_grayscale(original_image)
   height, width = image.shape
+  print "Converting image ({0}x{1}) to graph...".format(width, height)
   
-  img.imsave("grayscale.png", image, cmap="gray")
+  img.imsave("tmp/grayscale.png", image, cmap="gray")
   
   # vertex_id -> edges
   graph = {}
@@ -57,6 +58,7 @@ def convert(image_file, outfile):
       my_id = str(i * width + j)
       edges = []
       
+      # create edge between adjaceny pixels
       top_left = get_edge(i, j, i-1, j-1, height, width, image)
       top = get_edge(i, j, i-1, j, height, width, image)
       top_right = get_edge(i, j, i-1, j+1, height, width, image)
@@ -75,6 +77,7 @@ def convert(image_file, outfile):
       edges.append(bottom)
       edges.append(bottom_right)
       
+      # remove out of range edges
       lst = range(len(edges))
       lst.reverse()
       for k in lst:
