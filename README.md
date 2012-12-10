@@ -26,74 +26,80 @@ Serial Max-Flow:
 	
 	python serial.py <in_file_path>
 
-* input_image_path is a path to .jpg or .png
-* in_file_path is graph in adjacency list format (see "graph file format" section for example)
+`input_image_path` is a path to .jpg or .png
+`in_file_path` is graph in adjacency list format (see "graph file format" section for example)
 * You can find test graphs in the graphs directory.
 
-File Summary
+## File Summary
 See header comments in each file for more in-depth description.
 
-MAP REDUCE
-`driver.py`
-Driver for map-reduce max-flow algorithm. Handles graph conversation, and 
+### MapReduce
+`driver.py` is the driver for our MapReduce max-flow implementation. It handles file to graph conversation, reading/writing intermediate output between MapReduce iterations, and calculating the max flow and cut of the residual graph.
 
-`max_flow.py`
-MRJob class used for parallel max flow
+`max_flow.py` is the MRJob class used by `driver.py`
 
 `accumulator.py`
-Accumulator class used by our MRJob class. Responsible for ensuring 
+Accumulator class is a helper class used by `max_flow.py`. It is responsible for ensuring we accept only valid paths that do not violate any capacity constraints.
 
-MPI
-mpi.py
+### MPI
+`mpi.py` is our MPI max-flow implementation
 
-IMAGE SEGMENTATION
-image_processor.py
+### Image Segmentation
+`segment.py` segments foreground and background of input image using MapReduce max-flow implementation.
 
-segment.py
+`image_processor.py` is a helper file used by `segment.py` to convert an image into a graph file in adjacency list format.
 
-TESTING
+### Testing/Timing
 
-timing.py
+`serial.py` is our max-flow serial implementation
 
-test.py
+`test.py` uses a python-graph library to implement the max-flow algorithm. Used for testing. 
 
-serial.py
-our max flow serial implementation
+`timing.py` runs the serial, MapReduce, and MPI max-flow implementations on various graphs. Serves as a testing and timing module.
 
-DIRECTORIES
+### Directories
 
-graphs/
-directory for sample input graphs for max flow
+`graphs/` directory for sample input graphs for max flow
 
-images/
-directory for sample input images for segmentation
+`images/` directory for sample input images for segmentation
 
-tmp/
-directory for temporary files used by segment.py and driver.py (e.g. intermediate mapreduce input/output)
+`tmp/` directory for temporary files used by segment.py and driver.py (e.g. intermediate mapreduce input/output)
 
-scripts/
-directory for helper scripts e.g. test graph generation
+`scripts/` directory for helper scripts e.g. test graph generation
 
-docs/
-directory helper documents e.g. papers describing max flow min cut algorithm
+`docs/` directory helper documents e.g. papers describing max flow min cut algorithm
 
-library/
-directory for external libraries
+`library/` directory for external libraries
 
-Internal Libraries
+## Dependencies
+
+### Internal Libraries
 These packages came preinstalled on the CS205 VirtualBox and are readily available on Resonance Nodes.
 
-mpi4py (http://mpi4py.scipy.org/)
-mrjob (http://packages.python.org/mrjob/)
-numpy
+* [mpi4py](http://mpi4py.scipy.org/)
+* [mrjob](http://packages.python.org/mrjob/)
 
-External Libraries
+### External Libraries
 We have placed these dependencies in our project's library directory. Our project imports these local files, so you should not get any import errors.
 
-python-graph (http://code.google.com/p/python-graph/)
+* [python-graph](http://code.google.com/p/python-graph/)
 
-If you do run into import errors from python-graph, you may have to run the following install command from our project root directory. You will need sudo permissions.
+If you do run into import errors from python-graph, you may have to run the following install command from our project root directory. You will need sudo permissions:
 
-<from project root>
-cd library/python-graph/core/
-sudo python setup.py install
+	cd project_root
+	cd library/python-graph/core/
+	sudo python setup.py install
+
+## Graph File Format
+
+### Format
+
+vertex_id \t [[neighbor_id_1, edge_capacity_1], [neighbor_id_2, edge_capacity_2], ...]
+
+### Example
+
+	"1"	[["s", 6], ["t", 2]]
+	"0"	[["s", 7], ["t", 4], ["1", 3], ["2", 1]]
+	"s"	[["1", 2], ["2", 2]]
+	"2"	[["s", 10], ["0", 8], ["1", 2]]
+	"t"	[]
