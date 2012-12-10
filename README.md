@@ -12,19 +12,21 @@ We implemented two parallel versions of the Max-Flow Min-Cut algorithm: one in M
 
 ## Basic Usage
 
-Binary Image Segmentation. Relabels foreground as black and background as white using our map reduce min cut algorithm:
+All dependencies are located locally inside the project directory. There should not be any required steps for setup. If you run into issues, see the *dependencies* section below.
+
+Binary Image Segmentation. Relabels foreground as black and background as white using our map reduce min cut algorithm (outputs binary image):
 
 	python segment.py <input_image_path> <output_image_path>
 
-Map Reduce Max-Flow:
+Map Reduce Max-Flow (returns max-flow):
 
 	python driver.py <in_file_path>
 
-MPI Max-Flow:
+MPI Max-Flow (returns max-flow):
 
 	mpirun -n 4 python mpi.py <in_file_path>
 
-Serial Max-Flow:
+Serial Max-Flow (returns max-flow):
 	
 	python serial.py <in_file_path>
 
