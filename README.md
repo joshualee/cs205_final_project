@@ -99,6 +99,8 @@ If you do run into import errors from python-graph, you may have to run the foll
 ### Format
 
 	"vertex_id" \t [["neighbor_id_1", edge_capacity_1], ["neighbor_id_2", edge_capacity_2], ...]
+	
+Note these (key, value) pairs must be tab separated or our JSON reader won't work.
 
 ### Example
 
