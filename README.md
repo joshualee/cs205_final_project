@@ -4,14 +4,11 @@ We implemented two parallel versions of the Max-Flow Min-Cut algorithm: one in M
 
 ## Project Information 
 
-### Team
-Joshua Lee and Mona Huang
+**Team:** Joshua Lee and Mona Huang
 
-### Teaching Fellow
-Verena Kaynig-Fittkau
+**Teaching Fellow:** Verena Kaynig-Fittkau
 
-### Class
-CS205, Harvard University, Fall 2012
+**Class:** CS205, Harvard University, Fall 2012
 
 ## Basic Usage
 
