@@ -1,0 +1,28 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww13900\viewh17040\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f0\b\fs40 \cf0 Mona: 
+\b0 Hi I'm Mona!
+\b \
+\
+Joshua: 
+\b0 and I'm Josh! <20 second pause for applause and cheers>. For our final project we implemented parallels version of the Max-Flow Min-Cut algorithm in both MapReduce and MPI. and its application to image segementation.\
+
+\b \
+Mona:
+\b0  A brief description of max-flow is that it's the maximum amount of flow that you can push from the source to the sink in a directed graph with capacity constraints on the edges. So in the example below, the maximum flow is 4. \
+\
+
+\b Joshua: 
+\b0 Max-flow is an important algorithm because it has many real-world applications. For example, max-flow can be used to find optimal solutions the selection problems in which you have some _____________. Max-flow min cut can also be applied to solve scheduling problems, like the flight scheduling problem shown below, and Nash Equilibrium problems. The application that we decided to focus on is image segmentation, which is shown below:\
+\
+\
+
+\b Mona:
+\b0  We implemented the Ford Fulkerson algorithm for finding Max-Flow using both MapReduce and MPI. The challenges we faced in parallelizing the max-flow algorithm included coming up with a way to deconstruct our graph to distribute to each of the processors and then reconstruct these pieces after the parallel work was completed. Furthermore, because we were making updates to the graph from different processors, we had to ensure that multiple updates to an edge woud not violate the capacity constraints of that edge. Additionally, the Ford Fulkerson algorithm for finding max-flow relies on repeatedly finding paths from the source to the sink. In order to successfully parallelize our max-flow solution, we had to come up with a clever way of finding these paths that did not require each node to have a copy of the entire graph. Lastly, to make our algorithm utilize parallelizaiton as much as possible, we had to maintain a high level of parallelization computation at each step in the algorithm. To see techincal descriptions of how we implemented these solutions, please refer to our website. \
+\
+
+\b Josh: }
