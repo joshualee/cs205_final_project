@@ -1,3 +1,15 @@
+"""
+CS205 Final Project -- Joshua Lee and Mona Huang
+TF: Verena Kaynig-Fittkau
+Project: Parallel Max-Flow Min-Cut 
+
+usage: python timing.py
+input: none
+output: reports if tests are successful or not
+
+Tests for serial, MapReduce, and MPI implementations of max-flow algorithm.
+"""
+
 import driver
 import sys
 import serial
@@ -16,7 +28,6 @@ if __name__ == '__main__':
     mpi_install = False
     print "MPI not installed"
   
-  # for num_nodes in [2, 10, 25, 50, 100, 150, 200, 250, 350, 500]:
   for num_nodes in [2, 10, 25, 50, 100, 150, 200]:
     in_path = "graphs/timings/graph_{0}".format(num_nodes)
     

@@ -136,7 +136,7 @@ def run(infile):
 if __name__ == '__main__':
   args = sys.argv
   if len(args) != 2:
-    print "usage: python max_flow_serial.py infile"
+    print "usage: python serial.py infile"
     sys.exit(-1)
   
   infile = sys.argv[1]

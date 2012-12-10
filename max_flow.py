@@ -3,7 +3,7 @@ CS205 Final Project -- Joshua Lee and Mona Huang
 TF: Verena Kaynig-Fittkau
 Project: Parallel Max-Flow Min-Cut 
 
-usuage: called from driver
+usage: called from driver
 input: infile to MapReduce 
 output: outfile of MapReduce 
 
