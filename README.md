@@ -34,11 +34,11 @@ Serial Max-Flow:
 See header comments in each file for more in-depth description.
 
 ### MapReduce
-* `driver.py` is the driver for our MapReduce max-flow implementation. It handles file to graph conversation, reading/writing intermediate output between MapReduce iterations, and calculating the max flow and cut of the residual graph.
+`driver.py` is the driver for our MapReduce max-flow implementation. It handles file to graph conversation, reading/writing intermediate output between MapReduce iterations, and calculating the max flow and cut of the residual graph.
 
-* `max_flow.py` is the MRJob class used by `driver.py`
+`max_flow.py` is the MRJob class used by `driver.py`
 
-* `accumulator.py` is a helper class used by `max_flow.py`. It is responsible for ensuring we accept only valid paths that do not violate any capacity constraints.
+`accumulator.py` is a helper class used by `max_flow.py`. It is responsible for ensuring we accept only valid paths that do not violate any capacity constraints.
 
 ### MPI
 `mpi.py` is our MPI max-flow implementation
