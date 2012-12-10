@@ -28,12 +28,13 @@ Serial Max-Flow:
 	
 	python serial.py <in_file_path>
 
+* See header comments in files for more in-depth description.
 * `input_image_path` is a path to .jpg or .png
 * `in_file_path` is graph in adjacency list format (see "graph file format" section for example)
 * You can find test graphs in the graphs directory.
 
 ## Files Summary
-See header comments in each file for more in-depth description.
+See header comments in files for more in-depth description.
 
 ### MapReduce
 `driver.py` is the driver for our MapReduce max-flow implementation. It handles file to graph conversation, reading/writing intermediate output between MapReduce iterations, and calculating the max flow and cut of the residual graph.
@@ -95,7 +96,7 @@ If you do run into import errors from python-graph, you may have to run the foll
 
 ### Format
 
-vertex_id \t [[neighbor_id_1, edge_capacity_1], [neighbor_id_2, edge_capacity_2], ...]
+	"vertex_id" \t [["neighbor_id_1", edge_capacity_1], ["neighbor_id_2", edge_capacity_2], ...]
 
 ### Example
 
