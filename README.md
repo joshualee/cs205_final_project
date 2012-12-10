@@ -100,8 +100,8 @@ If you do run into import errors from python-graph, you may have to run the foll
 
 ### Example
 
-	"1"	[["s", 6], ["t", 2]]
-	"0"	[["s", 7], ["t", 4], ["1", 3], ["2", 1]]
 	"s"	[["1", 2], ["2", 2]]
+	"0"	[["s", 7], ["t", 4], ["1", 3], ["2", 1]]
+	"1"	[["s", 6], ["t", 2]]
 	"2"	[["s", 10], ["0", 8], ["1", 2]]
 	"t"	[]
