@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>The Max-Flow Min-Cut Algorithm</h1>
+
+<h2>What is the maximum flow and minimum cut? </h2>
+In a directed graph with edge weight capacities, the <b>maximum flow</b> is the maximum amount of capacity 
+that can pass from the source node to the sink node. In the example below, the maximum flow is ___. 
+
+<img src="pics/max_flow_graph">
+
+Another interpretation of this problem is finding the <b>minimum cut</b>. The minimum 
+cut is the set of edges with the smallest aggregate weight that can be removed from
+the graph so that no path exists from the source to the sink. 
+
+
+</body>
+</html>
+
+In our map reduce implementation each process was only responsible for a single vertex. we had a single master reducer that was resposible for accepting paths. we used an accumulator data structure to make sure that we never violate edge capacity constraints on the graph. The master reducers sends a list of augmented edges to tall mappers in the next round so each mapper can update their global view of the graph. Mpi implementation we used a master slave model. each slave was resposble for finding a single path from the source to the sink. the master is responsible for validating the path and if the path is accepted, the amster also sends the path too each slave so each slave can update their local view of the grpah. 
