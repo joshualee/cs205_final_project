@@ -1,0 +1,109 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf340
+\cocoascreenfonts1{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;\f1\fswiss\fcharset0 Helvetica;\f2\fswiss\fcharset0 ArialMT;
+\f3\fswiss\fcharset0 CenturyGothic;\f4\fswiss\fcharset0 Helvetica-Light;\f5\fnil\fcharset0 Verdana;
+}
+{\colortbl;\red255\green255\blue255;\red26\green26\blue26;\red89\green89\blue89;}
+\margl1440\margr1440\vieww14160\viewh16600\viewkind0
+\deftab720
+\pard\pardeftab720
+
+\f0\fs38 \cf2 Focus the majority of your screencast on your main contributions rather than on technical details.\
+\
+What do you feel is the coolest part of your project?\
+- able to do it in map reduce and mpi\
+- image segmentation works\
+\
+What insights did you gain?\
+- not all algorithms are good for mli and map reduce\
+(e.g. push relabel)\
+- documentation is important: mr_job / amazon EMR can be difficult to use and debug\
+- debugging sucks on large graphs\
+- parallel debugging is more difficult\
+- understand algorithm in serial before manipulating it in parallel\
+	- serial version step by step is straight forward\
+	- but in parallel have to create enough work to utilize every process\
+- representation and modularity is important\
+\
+What is the single most important thing you would like to show the class?\
+- image segmentation\
+\
+Make sure it is upfront and center rather than at the end.
+\f1\b\fs40 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\pardirnatural
+\cf0 \
+Mona: 
+\b0 Hi I'm Mona!
+\b \
+\
+Joshua: 
+\b0 and I'm Josh! For our final project we implemented parallel versions of the Max-Flow Min-Cut algorithm in both MapReduce and MPI. We utilized max-flow to implement binary image segmentation.\
+
+\b \
+Mona:
+\b0  A brief description of max-flow is that it's the maximum amount of flow that you can push from the source to the sink in a directed graph with capacity constraints on the edges. So in the example below, the maximum flow is 16. The maximum flow corresponds to the minimum cut, which is the minimal set of edges you can remove from the graph to separate the source and sink nodes.\
+\
+
+\b Joshua: 
+\b0 We chose to parallelize max-flow because it has many applications, particularly in image processing. For example, you can use max-flow to separate the background and foreground of an image. However these graph models can become quite large.  A DSLR camera takes pictures with 18 mega pixels.\cf2  Using a simple graph model, this gives a graph with over 18 million vertices and over 150 million edges. This requires a file of over 2 GB. Through parallelization we have the opportunity for large speedups and max flow solutions for graphs that do not fit into memory.\
+\
+Mona: Here are some of the challenges we faced. First we had to decide how to distribute the graph between processes. This meant deciding how large of a view of the graph to give to each process. Then because we are distributing the graph among multiple processes, we may have multiple updates to the same part of the graph from different processes, and so we have to be careful to avoid violating capacity constraints when we make updates to the graph. We also need to think about how to find paths from the source to the sink without a single node having a global view of the graph. Lastly, we want to maintain a high level of parallelizable computation, which entails maximizing the number of active nodes so that each iteration of map reduce explores multiple paths at a time.\
+\
+Josh: 
+\f2 \cf2 In our map reduce implementation each process was only responsible for a single vertex. We had a single master reducer that was responsible for accepting paths. We used an accumulator data structure to make sure that we never violate edge capacity constraints on the graph. The master reducer sends a list of augmented edges to all mappers in the next round so each mapper can update their global view of the graph. In the MPI implementation we used a master slave model. Each slave was responsible for finding a single path from the source to the sink. The master is responsible for validating the path and if the path is accepted, the master also sends the path too each slave so each slave can update their local view of the graph.\
+\
+
+\fs26 \
+\
+
+\fs40 Josh: The coolest part of our project is the ability to use our parallel max flow implementations to provide potential speed ups for entire classes of problems.  The general process for this is to take an instance of the original problem, process it into a graph, run max-flow on the graph, then use the maximum flow to determine the solution to the original problem. In this way, Max Flow exists as its own module, and by providing speed ups to max flow, we have provided speed ups to a wide variety of problems
+\fs26 \
+\
+\
+\
+\
+Max Flow is a modular. We can reduce a large variety of , then transform the output of max flow into the solution for our problem.\
+\
+\
+\
+\
+Now that have written a parallel version of, we can give it graphs of arbitrary size .
+\f1\fs40 \cf2 \
+\
+\
+\
+\pard\pardeftab720\li1080\fi-530
+
+\f3\fs24 \cf3 Distributing graph between processes\
+\
+Avoiding capacity constraint violation from multiple updates\
+\
+Finding augmenting paths from the source to the sink without giving each processor a complete view of the graph\
+\
+Maintaining a high level of parallelizable computation\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\pardirnatural
+
+\f1\fs40 \cf2 \
+\
+Doing this in serial in a reasonable amount of time is not possible.\
+\
+18 million \
+\
+\pard\pardeftab720\sl720
+
+\f4\fs60 \cf2 150,994,944
+\f5\fs40 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardeftab720\pardirnatural
+
+\f1 \cf0 \
+: flight scheduling and nash equilibrium. For example,\
+\
+image segmentation: graphs get really big very fast\
+\
+For example, max-flow can be used to find optimal solutions the selection problems in which you have some _____________. Max-flow min also be applied to solve scheduling problems, like the flight scheduling problem shown below, and Nash Equilibrium problems. The application that we decided to focus on is image segmentation, which is shown below:\
+\
+
+\b Mona:
+\b0  We implemented the Ford Fulkerson algorithm for finding Max-Flow using both MapReduce and MPI. The challenges we faced in parallelizing the max-flow algorithm included coming up with a way to deconstruct our graph to distribute to each of the processors and then reconstruct these pieces after the parallel work was completed. Furthermore, because we were making updates to the graph from different processors, we had to ensure that multiple updates to an edge woud not violate the capacity constraints of that edge. Additionally, the Ford Fulkerson algorithm for finding max-flow relies on repeatedly finding paths from the source to the sink. In order to successfully parallelize our max-flow solution, we had to come up with a clever way of finding these paths that did not require each node to have a copy of the entire graph. Lastly, to make our algorithm utilize parallelizaiton as much as possible, we had to maintain a high level of parallelization computation at each step in the algorithm. To see techincal descriptions of how we implemented these solutions, please refer to our website. \
+\
+
+\b Josh: }
