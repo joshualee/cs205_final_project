@@ -49,7 +49,7 @@ Mona:
 Mona: Here are some of the challenges we faced. First we had to decide how to distribute the graph between processes. This meant deciding how large of a view of the graph to give to each process. Then because we are distributing the graph among multiple processes, we may have multiple updates to the same part of the graph from different processes, and so we have to be careful to avoid violating capacity constraints when we make updates to the graph. We also need to think about how to find paths from the source to the sink without a single node having a global view of the graph. Lastly, we want to maintain a high level of parallelizable computation, which entails maximizing the number of active nodes so that each iteration of map reduce explores multiple paths at a time.\
 \
 Josh: 
-\f2 \cf2 In our map reduce implementation each process was only responsible for a single vertex. We had a single master reducer that was responsible for accepting paths. We used an accumulator data structure to make sure that we never violate edge capacity constraints on the graph. The master reducer sends a list of augmented edges to all mappers in the next round so each mapper can update their global view of the graph. In the MPI implementation we used a master slave model. Each slave was responsible for finding a single path from the source to the sink. The master is responsible for validating the path and if the path is accepted, the master also sends the path too each slave so each slave can update their local view of the graph.\
+\f2 In our map reduce implementation each process was only responsible for a single vertex. We had a single master reducer that was responsible for accepting paths. We used an accumulator data structure to make sure that we never violate edge capacity constraints on the graph. The master reducer sends a list of augmented edges to all mappers in the next round so each mapper can update their global view of the graph. In the MPI implementation we used a master slave model. Each slave was responsible for finding a single path from the source to the sink. The master is responsible for validating the path and if the path is accepted, the master also sends the path too each slave so each slave can update their local view of the graph.\
 \
 
 \fs26 \
@@ -67,7 +67,7 @@ Max Flow is a modular. We can reduce a large variety of , then transform the out
 \
 \
 Now that have written a parallel version of, we can give it graphs of arbitrary size .
-\f1\fs40 \cf2 \
+\f1\fs40 \
 \
 \
 \
