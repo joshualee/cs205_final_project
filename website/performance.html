@@ -63,42 +63,20 @@
         </div><!--/span-->
         <div class="span9">
           <div class="hero-unit">
-            <h1>Hello, world!</h1>
-            <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-            <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            <h1>Performance</h1>
+            <p>by Joshua Lee and Mona Huang</p>
           </div>
           <div class="row-fluid">
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-          </div><!--/row-->
-          <div class="row-fluid">
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
+            <div class="span10">
+				<h2>Technical Difficulties</h2>
+				<p>Although we were able to get our MapReduce code to run locally, we were unable to get it working on Amazon EMR. Our implementation method was very close to the driver program used in HW1, however we found out later that this is actually an unideal setup. We think the main issue is due to our local convergence test, which is a known problem in MRJob <a href='https://groups.google.com/forum/?fromgroups=#!topic/mrjob/OtOimNrUpW4'> (link) </a>. Another issue is that our algorithm is much more complex than the standard embarressingly parallel problems. After consulting with Brandon Haynes, we thought it would not be a good use of our time to spend hours and hours trying to fight with the framework. Instead, we provide a theoretical analysis of why our parallel implementation should lead to speed ups. We do apologize we were not able to get it running properly on EMR.</p>
+              <h2>Theoretical Analysis</h2>
+			  <h3> MapReduce: Extension of several paths at a time </h3>
+			        <p>The majority of the speedup of the parallel implementation comes from its discovery of multiple paths between the sink and source nodes at a time. This is a much more efficient algorithm than the serial verision, which depends on finding a single path before it can find another. Several aspects of the parallel solution enable it to find paths in this way. Starting at the source, the parallel solution keeps a set of "active" nodes at each iteration of the MapReduce. "Active" nodes are defined as nodes that are currently included in a path starting from the source and looking for the sink node. In each iteration of MapReduce, we extend the set of "active" nodes to also include the neighbors of all of the current "active" nodes. As a result, the number of "active" nodes, and paths, grows polynomially with each step. To further speed up the discovery of paths from the source to the sink, we optimized our parallel solution to also include "active" nodes that are in a path that ends in the sink. By doing this, we can speed up the discovery of paths from the source to the sink by twice as much. When a node becomes both an "active" node in a source path and an "active" node in a sink path, we know that we have found a full path from source to sink.</p>
+			         <p>The serial algorithm runs in time O(np), where n is the number of nodes in the longest path, and p is the number of paths. Our parallel algorithm runs in time O(n), where n is the number of nodes in the longest path. The number of paths p does not affect our parallel runtime because it explores and finds all paths at the same time. These runtime analyses come from the comparion of algorithms discussed above. Although we were not able to provide concrete data to support this, it seems obvious that our parallel solution is much faster.</p>
+					 <h3>MPI: Distributed Path Finding</h3>
+					 <p>The speedup from our MPI implementation comes from the fact that we have individual slaves find augmenting paths and then report those back to the master. Of course, we need to ensure that the overhead in communication does not outweight the benefits from parallelism. We note that the sources of communication are (1) sending a slave the original copy of the graph (2) sending the slave a new job along with any graph updates (3) sending the master any augmenting paths. Thus, we conjecture that our algorithm provides speed ups when the time it takes to find an augmenting path is larger than the time it takes to do the graph updates, since the updates seems to be the largest bottleneck in this process. This occurs when the graph is extremely dense with a lot of "bad" paths (lots of paths but few that go from the source to sink). We expect that our MPI algorithm performs best on these</p>
+					 
             </div><!--/span-->
           </div><!--/row-->
         </div><!--/span-->
