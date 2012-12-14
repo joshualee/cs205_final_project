@@ -63,42 +63,17 @@
         </div><!--/span-->
         <div class="span9">
           <div class="hero-unit">
-            <h1>Hello, world!</h1>
-            <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-            <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            <h1>Extensions and Improvements</h1>
+            <p>by Joshua Lee and Mona Huang</p>
           </div>
           <div class="row-fluid">
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-          </div><!--/row-->
-          <div class="row-fluid">
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
+            <div class="span10">
+				<h2>Extensions</h2>
+				<p>One of the coolest aspects of our project is that max-flow is an algorithm with many different applications. Now that we have built a parallel max-flow module, it is possible to utilize it to solve many problems that can be interpreted as a Max-Flow Min-Cut graph problem. Examples include various scheduling, matching and optimization problems. To enable parallel solutions to these problems, we can easily build programs to transform the original problem into an appropriate graph interpretation. From there, we can use our parallel algorithm to solve the generic Max-Flow Min-Cut problem to provide a solution to the original problem.</p>
+
+				<p>Another possible extension to our project would be to implement a CUDA solution. We did not have enough time during the course of our project to fully map out a CUDA solution, but we are aware that solutions exist, such as this one presented by <a href='http://www.nvidia.com/content/GTC/documents/1060_GTC09.pdf'>NVIDIA</a>. </p>
+				<h2>Improvements</h2>
+				<p>An improvement that could be made for both our MapReduce and MPI solutions is to increase performance. In our MapReduce solution, we can do this by finding better ways to pass around the A_p array of augmented edges than our current solution of writing it to the end of each line of our graph file. This step is a huge performance hit to our algorithm because it scales linearly with the size of the graph and cannot be done in parallel because it happens in the driver. Possible solutions to this problem include "bootstrapping" a file to hold the contents of A_p when we run parallel Max-Flow Min-Cut on EMR so that each mapper can have access to the full contents of this file. Doing so gives us a way to have global memory across all machines in the MapReduce job. Another possible improvement to the MapReduce solution could be paritioning the graph in another way. Instead of breaking down the graph to give each machine a single node, we could instead split the graph into pieces and calculate the max-flow on those individual pieces before merging them into a complete graph. We could apply a similar approach in our MPI solution. Another improvement to our MPI solution may be to use different communication protocols than our current use of comm.send and comm.recv. For example, switching from these protocols to their raw data counterparts comm.Send and comm.Recv may give us speed improvements, especially as the input graph gets larger because encoding/decoding will no longer be necssary.</p>
             </div><!--/span-->
           </div><!--/row-->
         </div><!--/span-->

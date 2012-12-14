@@ -63,43 +63,35 @@
         </div><!--/span-->
         <div class="span9">
           <div class="hero-unit">
-            <h1>Hello, world!</h1>
-            <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-            <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            <h1>Reflection</h1>
+			<p>by Joshua Lee and Mona Huang</p>
           </div>
           <div class="row-fluid">
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-          </div><!--/row-->
-          <div class="row-fluid">
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
-            <div class="span4">
-              <h2>Heading</h2>
-              <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-              <p><a class="btn" href="#">View details &raquo;</a></p>
-            </div><!--/span-->
+            <div class="span10">
+				<h3>What interesting insights did you gain from this project?</h3>
+				<p>We gained many insights into parallel programming from this project. In particular, we learned that not all algorithms are suitable for parallelization. The Ford Fulkerson algorithm has a very simple serial solution that depends on finding a full path from the source to the sink before making updates to the graph. However this model of the algorithm does not give enough computation at each step for a good parallel algorithm. Therefore, we had to completely change the way that we thought about the algorithm in order to come up with a parallel solution.</p>
+
+				<p>We also learned that the success of a parallel solution lies in its ability to create enough work for each of the machines that are used in computation. This is a direct interpretation of Amdahl's Law and the idea that parallelization efforts are only as effective as the portion of a program that can be parallelized. In the context of both our MapReduce and MPI Max-Flow Min-Cut algorithm, this meant keeping a high level of "active nodes", which are the nodes that are extending augmenting paths in the graph.</p> 
+
+				<p>Another insight that we gained from this project is that you must fully understand the serial version of an algorithm before attempting to convert it into a parallel solution. As discussed previously, parallel algorithms often require a complicated and unintuitive way of thinking about a problem. Without first having a solid understanding for an existing solution to a problem, it can become difficult to implement and debug parallel implementations. Debugging, in particular, can be very cumbersome without a good understanding of the problem and solution at hand. </p> 
+
+				<p>Finally, we learned that good documentation is an essential part of making an easy-to-use API. One huge barrier to our successfully increasing the speed of our MapReduce solution was our inability to bootstrap files on Amazon's EMR. (See Improvements for more discussion on this problem) This could easily have been overcome had the MrJob documentation been more thorough.</p>
+
+
+				<h3>What did you most enjoy about working on this project?</h3>
+				<p>Our favorite aspect of this project was being able to apply different parallel frameworks for parallel solutions to the same serial problems. Comparing these implementations gave us a broader understanding of the advantages and disadvantages of both frameworks. For example, the master-slave model that works well in MPI would be difficult to reproduce in MapReduce and would probably result in few performance gains. </p>
+				<p>Another enjoyable part of this project was seeing the results of our image segmentation program. This was a tangible output for us to see that our parallel solution was in fact working and could be successfully applied to solve real-life problems. </p>
+
+				<h3>What was the most challenging aspect?</h3>
+				<p>The most challenging aspect of this project was debugging our parallel solutions. While testing both solutions, our solutions would work on smaller graphs but break for larger graphs. For smaller graphs, it was easy to draw out the graph and visually figure out what was going on, but for larger graphs it was much harder to do so. Another challenging aspect of the project was dealing with AWS and Mr Job, both of which have lackluster documentation. </p>
+
+
+				<h3>What was the most frustrating?</h3>
+				<p>The most frustrating thing was debugging, as well as not being able to print output from within mappers and reducers. </p>
+
+				 <h3>What would you do differently?</h3>
+				<p>Given another chance at the project, we would have made sure that we fully understood the serial solution to Max-Flow before tackling the parallel version. One of the bugs that took us the longest to fix was the existence of backedges, both for when updating a forward edge should cause an update to a backedge as well as using backedges in the final DFS to find the min cut. Our failure to realize this was because of a lack of understanding of how the serial algorithm worked. We could have saved a lot of debugging time had we been more educated before diving into the parallel implementation. </p>
+			</div>
           </div><!--/row-->
         </div><!--/span-->
       </div><!--/row-->
