@@ -104,7 +104,7 @@
                     using the following reduction. From the original image file, create a graph in 
                     which each pixel is converted into a vertex and create directed edges between 
                     all adjacent pixels with edge capacity p_ij. We also introduce a super source 
-                    “s” and super sink “t”. We introduce directed edges from “s” to all pixel 
+                    s and super sink t. We introduce directed edges from s to all pixel 
                     vertices with capacity a_i and directed edges from all pixel vertices to “t” 
                     with capacity b_i.  
               </p>
@@ -121,6 +121,7 @@
                     connected to the sink (call it B). We can label all pixels in A as the 
                     foreground and all pixels in B as background.
               </p>
+			  <h2>Motivation</h2>
               <p> The graphs created by our conversion can become quite large. In a standard 18 
                     mega pixel image, this results in a graph of approximately 18 million vertices and 
                     150 million edges. A graph of this size would require 2GB of space to store. 
@@ -129,7 +130,7 @@
                     Min-Cut algorithm, we hope to conquer many of the speed constraints that are a 
                     result of the serial algorithm, as well as provide a solution for running the 
                     Max-Flow Min-Cut algorithm on graphs that are too large to fit in one file.  
-              </p
+              </p>
             </div><!--/span-->
           </div><!--/row-->
         </div><!--/span-->
